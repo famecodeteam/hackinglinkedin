@@ -1,6 +1,6 @@
 # LinkedIn Content System
 
-A self-hosted content engine for LinkedIn, vibe-coded in [Claude Code](https://claude.com/claude-code). It scans creators you trust for inspiration, drafts posts in **your** voice (trained on your own past posts), plans your week, and hands you finished drafts in Google Docs. **Nothing ever auto-posts** - you finish and post everything yourself.
+A self-hosted content engine for LinkedIn. It scans creators you trust for inspiration, drafts posts in **your** voice (trained on your own past posts), plans your week, and hands you finished drafts in Google Docs. **Nothing ever auto-posts** - you finish and post everything yourself.
 
 Built by [Tom Hunt](https://tomhunt.io), founder & CEO of [Fame](https://fame.so) (we start and grow B2B podcasts), as a "you could build this yourself now" experiment. Open-sourced so you can too.
 
