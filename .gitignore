@@ -1,4 +1,5 @@
 .DS_Store
 node_modules/
 *.log
-data/inbox/
+data/inbox/*
+!data/inbox/.gitkeep
