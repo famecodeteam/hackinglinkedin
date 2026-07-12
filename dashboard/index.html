@@ -165,19 +165,44 @@ input.needsinput{border-color:var(--wildcard);box-shadow:0 0 0 3px rgba(185,28,2
 const DATA_URL = "../data/ideas.json";
 const STORE_KEY = "linkedin_content_system_v1";
 
+/* =======================================================================
+   CONFIG - THIS is the bit to make your own. Edit the values below;
+   the whole board keys off them, so changing them here changes everything.
+   (If you RENAME or ADD pillars, also update `pillars.md` and the files in
+   `prompts/` so the AI writer knows your categories.)
+   ======================================================================= */
+
+// Your post types ("pillars"). Add / remove / rename freely.
+//   color: any CSS colour - a hex like "#e11d48", or a var(--token) from the CSS above.
+//   desc:  the one-line reminder shown in the legend.
 const PILLARS = {
-  Repost:{color:"#b7791f", desc:"re-share a past hit (500+ likes)"},
-  Workplace:{color:"var(--workplace)", desc:"culture, management, hiring, remote"},
-  Business:{color:"var(--business)", desc:"bootstrapping, finance, productivity"},
-  Marketing:{color:"var(--marketing)", desc:"B2B marketing, podcasting"},
-  AI:{color:"var(--ai)", desc:"building in public, vibe coding"},
-  Wildcard:{color:"var(--wildcard)", desc:"transparent CEO diary"}
+  Repost:    {color:"#b7791f",          desc:"re-share a past hit (500+ likes)"},
+  Workplace: {color:"var(--workplace)", desc:"culture, management, hiring, remote"},
+  Business:  {color:"var(--business)",  desc:"bootstrapping, finance, productivity"},
+  Marketing: {color:"var(--marketing)", desc:"B2B marketing, podcasting"},
+  AI:        {color:"var(--ai)",        desc:"building in public, vibe coding"},
+  Wildcard:  {color:"var(--wildcard)",  desc:"transparent CEO diary"}
 };
+
+// The weekdays your board plans. (Add "Sat"/"Sun" if you post at weekends.)
 const DAYS = ["Mon","Tue","Wed","Thu","Fri"];
-const FIXED_DAY = {Mon:"Repost", Tue:"Marketing"};
+
+// Your weekly cadence:
+//   FIXED_DAY   - pin a day to one pillar (must be a key from PILLARS above).
+//   ROTATE_POOL - any day NOT pinned rotates through these, one per week.
+const FIXED_DAY   = {Mon:"Repost", Tue:"Marketing"};
 const ROTATE_POOL = ["Workplace","Business","AI","Wildcard"];
-const DAY_TYPE = {Mon:"Repost a past hit", Tue:"Fame case study", Wed:"Rotating category", Thu:"Rotating category", Fri:"Rotating category"};
+
+// The small grey label under each day header (purely cosmetic).
+const DAY_TYPE = {Mon:"Repost a past hit", Tue:"Case study", Wed:"Rotating category", Thu:"Rotating category", Fri:"Rotating category"};
+
+// How many weeks to show on the board.
 const WEEKS_SHOWN = 3;
+
+// The status lifecycle for an idea (shown as the status dropdown + pills).
+const STATUSES = ["idea","in progress","drafted","finishing","posted"];
+
+/* ===== end config - you shouldn't need to edit below this line ===== */
 function weekNum(d){ return Math.floor((d - new Date(d.getFullYear(),0,1))/(7*864e5)); }
 function dayPillar(day, mon){
   if(FIXED_DAY[day]) return FIXED_DAY[day];
@@ -205,7 +230,6 @@ function slotOptions(){
   }
   return html;
 }
-const STATUSES = ["idea","in progress","drafted","finishing","posted"];
 function pillClass(s){ return "statuspill "+String(s||"").replace(/\s+/g,"-"); }
 // Has this idea actually been drafted? (a Google Doc exists, or it's past the idea stage with real text)
 function hasRealDraft(x){ return !!(x.docUrl || (x.draft && x.status!=="idea" && x.status!=="in progress")); }

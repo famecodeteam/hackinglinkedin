@@ -61,6 +61,18 @@ You ── Copy for LinkedIn ──▶ paste into LinkedIn ──▶ post / sche
 
 ---
 
+## Make it your own - post types & cadence
+
+Everything configurable lives in **one clearly-marked `CONFIG` block** at the top of the `<script>` in `dashboard/index.html` (search for `CONFIG - THIS is the bit to make your own`). No build step - edit, save, reload. In there you can change:
+
+- **Post types (pillars)** - the `PILLARS` object. Add, remove, or rename them; give each a colour (any hex like `"#e11d48"`) and a one-line description.
+- **Weekly cadence** - `FIXED_DAY` pins a day to one pillar (e.g. Monday = Repost); any day not pinned rotates through `ROTATE_POOL`, a different pillar each week.
+- **Which days you plan** - `DAYS` (add `"Sat"`/`"Sun"` if you post weekends).
+- **How many weeks show** - `WEEKS_SHOWN`.
+- **The status lifecycle** - `STATUSES` (idea → drafted → posted, or whatever fits you).
+
+> **If you rename or add pillars, also update `pillars.md` and the files in `prompts/`** - those are what the AI writer/feeder read, so they need to know your categories too. (The dashboard is the visual source of truth; those files are the AI's copy.)
+
 ## Make the writer sound like *you*
 
 This is the part that matters. Out of the box the voice guide is a template. To get drafts that sound like you:
