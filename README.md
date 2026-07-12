@@ -6,6 +6,8 @@ Built by [Tom Hunt](https://tomhunt.io), founder & CEO of [Fame](https://fame.so
 
 > **The pitch:** three years ago this was a $20-50k custom build or an expensive SaaS subscription. Now it's a weekend, some evenings, and an AI that writes in your voice.
 
+![The Hacking LinkedIn dashboard - a terminal-themed weekly content board](docs/screenshot.png)
+
 ---
 
 ## What it does
