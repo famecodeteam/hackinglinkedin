@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Tiny local server for the Hacking LinkedIn dashboard.
 
-Serves the static dashboard AND accepts two POSTs from the dashboard:
+Serves the static dashboard AND accepts small POSTs from it that flag ideas in
+data/ideas.json for Claude Code to act on, e.g.:
   /api/draft-request  -> flags ideas (draftRequested:true) for the drafter (prompts/draft.md).
-  /api/update-note    -> saves Tom's "notes for drafting" (draftNotes) onto an idea.
-Both match an incoming post to data/ideas.json by id or normalised hook; if it
+  /api/suggest-pic    -> flags an idea (picRequested:true) for photo suggestion.
+  /api/sync-doc       -> flags an idea (syncFromDocRequested:true) to re-read its Google Doc.
+  /api/update-note    -> saves your "notes for drafting" (draftNotes) onto an idea.
+Each matches an incoming post to data/ideas.json by id or normalised hook; if it
 isn't there (a browser-only / drifted idea) it is UPSERTED, so the action always
-sticks. No Cowork needed.
+sticks. Pure standard-library Python - no dependencies.
 """
 import json, os, re, time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -107,9 +110,13 @@ class Handler(SimpleHTTPRequestHandler):
             return self._apply(set_notes)
         if path == "/api/suggest-pic":
             return self._apply(lambda target, inc: target.update({"picRequested": True}))
+        if path == "/api/sync-doc":
+            # "Pull edits": flag the item so Claude Code re-reads its Google Doc and
+            # updates the stored draft (so "Copy for LinkedIn" matches your Doc edits).
+            return self._apply(lambda target, inc: target.update({"syncFromDocRequested": True}))
         if path == "/api/add-idea":
             # Extension "Add to bank": upsert the idea (keeps body in draftNotes) but do NOT
-            # flag it for drafting. Tom drafts it later from the dashboard.
+            # flag it for drafting. You draft it later from the dashboard.
             return self._apply(lambda target, inc: None)
         if path == "/api/inspiration-add":
             # Inspiration tab "Add to bank": turn a scanned post into an idea + mark it added.
@@ -143,7 +150,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "hook": hook, "note": "Inspiration - LinkedIn post by " + author,
                 "source": "feeder", "status": "idea", "draft": "", "type": "",
                 "day": None, "date": None,
-                "draftNotes": "INSPIRATION POST by " + author + " that Tom saved. Write Tom's OWN take on this theme in his voice (do not copy it):\n\n" + text,
+                "draftNotes": "INSPIRATION POST by " + author + " that you saved. Write your OWN take on this theme in your voice (do not copy it):\n\n" + text,
                 "sourceUrl": post.get("url") or "",
                 "createdAt": int(time.time() * 1000),
             })

@@ -6,104 +6,138 @@
 <title>Hacking LinkedIn</title>
 <style>
 :root{
-  color-scheme: light;
-  --bg:#f4f5f7; --card:#ffffff; --ink:#1d2226; --muted:#5e6b74; --line:#e3e6ea;
-  --brand:#0a66c2; --brand-ink:#084a8f;
-  --workplace:#c2410c; --business:#0a66c2; --marketing:#7c3aed; --ai:#0f766e; --wildcard:#b91c1c;
-  --posted:#15803d; --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  color-scheme: dark;
+  --bg:#080a09; --bg2:#0c100e; --card:#0e1311; --card2:#0b0f0d;
+  --ink:#c9f2d4; --dim:#83b593; --muted:#5c7a67; --line:#1c2a23; --line2:#294036;
+  --green:#37d98a; --green-b:#5cf7a6; --amber:#f5c451; --coral:#ff7a5c; --cyan:#3ce0d0; --magenta:#d580ff; --red:#ff5c7a;
+  --brand:#37d98a; --brand-ink:#5cf7a6; --posted:#37d98a;
+  --workplace:#ff7a5c; --business:#37d98a; --marketing:#d580ff; --ai:#3ce0d0; --wildcard:#ff5c7a;
+  --shadow:0 12px 34px rgba(0,0,0,.55);
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Fira Code",Menlo,Consolas,"Liberation Mono",monospace;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
-.wrap{max-width:1180px;margin:0 auto;padding:20px 20px 60px;}
-header.top{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
-h1{font-size:20px;margin:0;font-weight:700;letter-spacing:-.2px;}
-.sub{color:var(--muted);font-size:13px;margin:0 0 16px;}
-.feeder{font-size:12px;color:var(--muted);}
-.legend{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 14px;}
-.tabs{display:flex;gap:4px;margin:4px 0 18px;border-bottom:1px solid var(--line);}
-.tab{border:none;background:transparent;border-bottom:2px solid transparent;border-radius:0;padding:9px 13px;font-weight:700;font-size:13px;color:var(--muted);margin-bottom:-1px;}
-.tab.active{color:var(--ink);border-bottom-color:var(--brand);}
-.tab:hover{background:#eef1f4;}
-.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:#fff;border:1px solid var(--line);}
-.dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
-.section-h{display:flex;align-items:center;justify-content:space-between;margin:22px 0 12px;}
-.section-h h2{font-size:15px;margin:0;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);}
-/* Week board */
+html{background:var(--bg);}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.55 var(--mono);position:relative;min-height:100vh;
+  background-image:radial-gradient(rgba(55,217,138,.06) 1px, transparent 1px);background-size:22px 22px;}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.16) 3px, rgba(0,0,0,0) 4px);opacity:.55;}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background:radial-gradient(120% 80% at 50% -10%, rgba(55,217,138,.09), transparent 60%);}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 20px 70px;position:relative;z-index:1;}
+header.top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:12px;
+  border:1px dashed var(--line2);border-radius:10px;padding:15px 17px;background:linear-gradient(180deg,var(--card),var(--card2));
+  box-shadow:var(--shadow),inset 0 0 70px rgba(55,217,138,.03);}
+.brandline{font-size:12px;color:var(--dim);margin-bottom:5px;}
+.brandline .usr{color:var(--green);} .brandline .pth{color:var(--cyan);} .brandline .cmd{color:var(--amber);}
+h1{font-size:27px;margin:0;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green-b);
+  text-shadow:0 0 13px rgba(55,217,138,.55),0 0 2px rgba(92,247,166,.8);}
+h1 .cursor{display:inline-block;width:.5em;height:.95em;background:var(--green-b);margin-left:5px;vertical-align:-1px;
+  box-shadow:0 0 10px var(--green);animation:blink 1.05s steps(1) infinite;}
+@keyframes blink{50%{opacity:0}}
+.sub{color:var(--dim);font-size:12px;margin:7px 0 0;}
+.feeder{font-size:11px;color:var(--muted);letter-spacing:.3px;}
+.sysbox{text-align:right;}
+.online{color:var(--green);text-shadow:0 0 8px var(--green);}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0;}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:5px;background:var(--card);border:1px solid var(--line2);color:var(--dim);}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;box-shadow:0 0 6px currentColor;}
+.tabs{display:flex;gap:2px;margin:6px 0 20px;border-bottom:1px solid var(--line2);}
+.tab{border:none;background:transparent;border-bottom:2px solid transparent;border-radius:0;padding:9px 14px;font-weight:700;font-size:12px;color:var(--muted);margin-bottom:-1px;font-family:var(--mono);letter-spacing:.4px;}
+.tab::before{content:"› ";opacity:.4;}
+.tab.active{color:var(--green-b);border-bottom-color:var(--green);text-shadow:0 0 8px rgba(55,217,138,.5);}
+.tab.active::before{opacity:1;color:var(--green);}
+.tab:hover{background:rgba(55,217,138,.06);color:var(--ink);}
+.section-h{display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px;}
+.section-h h2{font-size:13px;margin:0;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--green);}
+.section-h h2::before{content:"> ";color:var(--amber);}
 .week{display:flex;flex-direction:column;gap:22px;}
-.weekblock-h{display:flex;align-items:baseline;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:9px;}
-.weekblock-h .sub{font-weight:500;text-transform:none;letter-spacing:0;color:#9aa5ad;}
-.weekblock.ahead .weekgrid{opacity:.92;}
+.weekblock-h{display:flex;align-items:baseline;gap:8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:9px;}
+.weekblock-h .sub{font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted);}
+.weekblock.ahead .weekgrid{opacity:.8;}
 .weekgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
-.day{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:150px;overflow:hidden;}
-.day-h{padding:10px 12px;border-bottom:1px solid var(--line);}
-.day-h .d{font-weight:700;font-size:13px;}
-.day-h .p{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+.day{background:var(--card);border:1px dashed var(--line2);border-radius:9px;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:160px;overflow:hidden;position:relative;}
+.day-h{padding:23px 12px 9px;border-bottom:1px dashed var(--line);position:relative;}
+.day-h::before{content:"";position:absolute;top:11px;left:12px;width:7px;height:7px;border-radius:50%;background:#ff5f56;box-shadow:11px 0 #ffbd2e,22px 0 #27c93f;}
+.day-h .d{font-weight:700;font-size:12px;color:var(--ink);}
+.day-h .p{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
 .day-body{padding:10px;display:flex;flex-direction:column;gap:8px;flex:1;}
-.slotcard{border:1px solid var(--line);border-left:3px solid var(--muted);border-radius:8px;padding:8px 9px;background:#fff;font-size:13px;}
-.slotcard .hook{font-weight:600;line-height:1.35;}
-.slotcard .note{color:var(--muted);font-size:11.5px;margin-top:3px;}
-.slotcard .row{display:flex;gap:6px;align-items:center;margin-top:7px;flex-wrap:wrap;}
-.empty-slot{color:#9aa5ad;font-size:12px;text-align:center;padding:14px 4px;border:1px dashed var(--line);border-radius:8px;}
-.statuspill{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:2px 6px;border-radius:5px;background:#eef1f4;color:var(--muted);}
-.statuspill.in-progress{background:#e8e8f5;color:#4a4a8a;}
-.daily-badge{display:inline-block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:2px 8px;border-radius:5px;background:#f6cd67;color:#5a4a12;}
-.statuspill.drafted{background:#e0edfb;color:var(--brand-ink);}
-.statuspill.finishing{background:#fef3c7;color:#92700e;}
-.statuspill.posted{background:#dcfce7;color:var(--posted);}
-button{font:inherit;cursor:pointer;border-radius:7px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:5px 10px;font-weight:600;font-size:12px;}
-button:hover{background:#f7f8fa;}
-button.primary{background:var(--brand);border-color:var(--brand);color:#fff;}
-button.primary:hover{background:var(--brand-ink);}
-button.mini{padding:3px 7px;font-size:11px;}
-button.ghost{border:none;background:transparent;color:var(--muted);padding:3px 5px;}
-button.ghost:hover{color:var(--ink);background:#eef1f4;}
+.slotcard{border:1px solid var(--line2);border-left:3px solid var(--muted);border-radius:6px;padding:9px;background:var(--card2);font-size:12px;}
+.slotcard .hook{font-weight:600;line-height:1.35;color:var(--ink);}
+.slotcard .note{color:var(--muted);font-size:11px;margin-top:3px;}
+.slotcard .row{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap;}
+.empty-slot{color:var(--muted);font-size:11px;text-align:center;padding:16px 4px;border:1px dashed var(--line);border-radius:6px;opacity:.65;}
+.statuspill{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--line2);font-family:var(--mono);}
+.statuspill::before{content:"● ";font-size:7px;vertical-align:1.5px;}
+.statuspill.in-progress{background:rgba(213,128,255,.12);color:var(--magenta);border-color:rgba(213,128,255,.32);}
+.statuspill.drafted{background:rgba(60,224,208,.12);color:var(--cyan);border-color:rgba(60,224,208,.32);}
+.statuspill.finishing{background:rgba(245,196,81,.12);color:var(--amber);border-color:rgba(245,196,81,.32);}
+.statuspill.posted{background:rgba(55,217,138,.14);color:var(--green-b);border-color:rgba(55,217,138,.36);}
+.daily-badge{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border-radius:4px;background:rgba(245,196,81,.14);color:var(--amber);border:1px solid rgba(245,196,81,.3);}
+button{font:inherit;font-family:var(--mono);cursor:pointer;border-radius:5px;border:1px solid var(--line2);background:var(--card);color:var(--green-b);padding:5px 11px;font-weight:600;font-size:12px;transition:all .12s;}
+button:hover{background:rgba(55,217,138,.1);border-color:var(--green);box-shadow:0 0 10px rgba(55,217,138,.22);}
+button.primary{background:var(--green);border-color:var(--green);color:#05130c;font-weight:700;}
+button.primary:hover{background:var(--green-b);box-shadow:0 0 16px rgba(55,217,138,.5);}
+button.mini{padding:3px 8px;font-size:11px;}
+button.ghost{border:1px solid transparent;background:transparent;color:var(--muted);padding:3px 6px;}
+button.ghost:hover{color:var(--red);background:rgba(255,92,122,.08);box-shadow:none;}
 .draftbtn{margin-top:6px;}
-select,input,textarea{font:inherit;border:1px solid var(--line);border-radius:7px;padding:6px 8px;background:#fff;color:var(--ink);}
+select,input,textarea{font:inherit;font-family:var(--mono);border:1px solid var(--line2);border-radius:5px;padding:6px 9px;background:var(--bg2);color:var(--ink);}
+select:focus,input:focus,textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px rgba(55,217,138,.2);}
 select.mini{padding:3px 6px;font-size:11px;}
-/* Idea bank */
-.bank{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:14px;}
+select option{background:var(--card);color:var(--ink);}
+.bank{background:var(--card);border:1px dashed var(--line2);border-radius:9px;box-shadow:var(--shadow);padding:16px 14px 14px;position:relative;}
 .addrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
 .addrow input.hookin{flex:1;min-width:220px;}
-.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
-.filters button{font-size:11.5px;padding:4px 9px;}
-.filters button.active{background:var(--brand);border-color:var(--brand);color:#fff;}
-.idea{display:flex;gap:10px;align-items:flex-start;padding:10px 8px;border-top:1px solid var(--line);}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.filters button{font-size:11px;padding:4px 10px;}
+.filters button.active{background:var(--green);border-color:var(--green);color:#05130c;font-weight:700;}
+.idea{display:flex;gap:12px;align-items:flex-start;padding:12px 6px;border-top:1px dashed var(--line);}
 .idea:first-child{border-top:none;}
 .idea .body{flex:1;min-width:0;}
-.idea .hook{font-weight:600;}
-.idea .meta{color:var(--muted);font-size:11.5px;margin-top:2px;}
-.idea .controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:7px;}
-.pill-tag{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:2px 7px;border-radius:5px;color:#fff;white-space:nowrap;}
-.empty{color:var(--muted);text-align:center;padding:26px;font-size:13px;}
-.draftbox{margin:6px 0;border:1px solid var(--line);border-radius:7px;background:#fafbfc;}
-.draftbox summary{cursor:pointer;padding:6px 9px;font-size:11.5px;font-weight:700;color:var(--brand-ink);list-style:none;}
+.idea .hook{font-weight:600;color:var(--ink);}
+.idea .meta{color:var(--muted);font-size:11px;margin-top:3px;}
+.idea .controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px;}
+.pill-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:4px;color:#05130c;white-space:nowrap;}
+.empty{color:var(--muted);text-align:center;padding:28px;font-size:12px;}
+.draftbox{margin:8px 0;border:1px solid var(--line2);border-radius:6px;background:var(--card2);}
+.draftbox summary{cursor:pointer;padding:7px 10px;font-size:11px;font-weight:700;color:var(--cyan);list-style:none;text-transform:uppercase;letter-spacing:.5px;}
 .draftbox summary::-webkit-details-marker{display:none;}
-.draftbox[open] summary{border-bottom:1px solid var(--line);}
-.drafttext{white-space:pre-wrap;font:12.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:9px 11px;margin:0;color:var(--ink);}
-.draftbox button{margin:0 9px 9px;}
-.draftactions{display:flex;gap:8px;align-items:center;margin:0 9px 9px;flex-wrap:wrap;}
+.draftbox summary::before{content:"$ ";color:var(--green);}
+.draftbox[open] summary{border-bottom:1px solid var(--line2);}
+.drafttext{white-space:pre-wrap;font-family:var(--mono);font-size:12px;line-height:1.5;padding:10px 12px;margin:0;color:var(--ink);}
+.draftbox button{margin:0 10px 10px;}
+.draftactions{display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap;}
 .draftactions button{margin:0;}
-a.doclink{display:inline-flex;align-items:center;gap:4px;text-decoration:none;color:var(--brand-ink);border:1px solid var(--line);border-radius:7px;padding:3px 8px;font-weight:600;font-size:11px;line-height:1.35;background:#fff;white-space:normal;max-width:100%;}
-a.doclink:hover{background:#f7f8fa;}
-.hint{font-size:11.5px;color:var(--muted);margin-top:6px;}
-.notesbox{margin:6px 0;border:1px solid var(--line);border-radius:7px;background:#fffdf7;}
-.notesbox summary{cursor:pointer;padding:6px 9px;font-size:11.5px;font-weight:700;color:#92700e;list-style:none;}
+a.doclink{display:inline-flex;align-items:center;gap:5px;text-decoration:none;color:var(--cyan);border:1px solid var(--line2);border-radius:5px;padding:4px 9px;font-weight:600;font-size:11px;line-height:1.35;background:var(--card);white-space:normal;max-width:100%;font-family:var(--mono);transition:all .12s;}
+a.doclink:hover{background:rgba(60,224,208,.1);border-color:var(--cyan);box-shadow:0 0 10px rgba(60,224,208,.2);}
+.hint{font-size:11px;color:var(--muted);margin-top:8px;}
+.hint::before{content:"// ";color:var(--green);opacity:.6;}
+.notesbox{margin:8px 0;border:1px solid var(--line2);border-radius:6px;background:rgba(245,196,81,.045);}
+.notesbox summary{cursor:pointer;padding:7px 10px;font-size:11px;font-weight:700;color:var(--amber);list-style:none;text-transform:uppercase;letter-spacing:.5px;}
 .notesbox summary::-webkit-details-marker{display:none;}
-.notesbox[open] summary{border-bottom:1px solid var(--line);}
-.notesbox .filled{color:#15803d;}
-.notesinput{width:100%;border:none;background:transparent;border-radius:0 0 7px 7px;padding:8px 10px;font:12.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);resize:vertical;min-height:52px;display:block;}
-.notesinput:focus{outline:none;background:#fff;}
-.picbox{margin:6px 0;display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:8px;background:#fff;}
-.picbox img{width:92px;height:92px;object-fit:cover;border-radius:6px;flex:none;background:#eef1f4;}
-.picbox .picmeta{font-size:11.5px;color:var(--muted);min-width:0;}
-.picbox .picmeta .why{color:var(--ink);font-weight:600;margin-bottom:2px;}
-.picbox .picrow{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-.week-meta{font-size:12px;color:var(--muted);font-weight:600;}
-.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1d2226;color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;box-shadow:var(--shadow);opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;}
+.notesbox summary::before{content:"# ";color:var(--amber);}
+.notesbox[open] summary{border-bottom:1px solid var(--line2);}
+.notesbox .filled{color:var(--green);}
+.notesinput{width:100%;border:none;background:transparent;border-radius:0 0 6px 6px;padding:9px 11px;font-family:var(--mono);font-size:12px;line-height:1.5;color:var(--ink);resize:vertical;min-height:54px;display:block;}
+.notesinput:focus{outline:none;background:rgba(0,0,0,.25);}
+.picbox{margin:8px 0;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line2);border-radius:7px;padding:8px;background:var(--card2);}
+.picbox img{width:100%;height:150px;object-fit:cover;border-radius:5px;background:var(--bg2);display:block;border:1px solid var(--line);}
+.picbox .picmeta{font-size:11px;color:var(--muted);min-width:0;display:flex;align-items:baseline;gap:8px;justify-content:space-between;}
+.picbox .picmeta .why{color:var(--ink);font-weight:600;display:flex;align-items:center;gap:4px;white-space:nowrap;cursor:help;}
+.picbox .infodot{cursor:help;color:var(--cyan);font-weight:400;}
+.picbox .picname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;color:var(--muted);text-align:right;}
+.picbox .picrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.picbox .picrow .mini{padding:5px 9px;}
+.pending{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:5px;margin:5px 0;background:rgba(245,196,81,.1);color:var(--amber);border:1px solid rgba(245,196,81,.3);}
+.pending .spin{width:9px;height:9px;border:2px solid var(--amber);border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+#globalTip{position:fixed;z-index:9999;display:none;max-width:240px;background:#05130c;color:var(--ink);padding:8px 10px;border-radius:6px;font-size:11px;line-height:1.45;font-weight:400;font-family:var(--mono);border:1px solid var(--green);box-shadow:0 0 18px rgba(55,217,138,.3);pointer-events:none;}
+.week-meta{font-size:11px;color:var(--dim);font-weight:600;}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#05130c;color:var(--green-b);padding:10px 16px;border-radius:6px;font-size:12px;font-family:var(--mono);border:1px solid var(--green);box-shadow:0 0 20px rgba(55,217,138,.35);opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;}
 .toast.show{opacity:1;}
-input.needsinput{border-color:var(--wildcard);box-shadow:0 0 0 3px rgba(185,28,28,.15);}
-@keyframes flashnew{from{background:#fff7d6;}to{background:transparent;}}
-.idea.justadded{animation:flashnew 1.6s ease-out;}
+input.needsinput{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,92,122,.2);}
+@keyframes flashnew{from{background:rgba(55,217,138,.12);}to{background:transparent;}}
+.idea.justadded{animation:flashnew 1.8s ease-out;}
 @media(max-width:820px){.weekgrid{grid-template-columns:1fr 1fr;} }
 </style>
 </head>
@@ -111,17 +145,14 @@ input.needsinput{border-color:var(--wildcard);box-shadow:0 0 0 3px rgba(185,28,2
 <div class="wrap">
   <header class="top">
     <div>
-      <h1>Hacking LinkedIn</h1>
-      <p class="sub">Feeder &rarr; idea bank &rarr; draft in your voice &rarr; you finish &amp; post. Nothing auto-posts.</p>
+      <div class="brandline"><span class="usr">you@localhost</span>:<span class="pth">~/linkedin</span>$ <span class="cmd">./hack --start</span></div>
+      <h1>Hacking LinkedIn<span class="cursor"></span></h1>
+      <p class="sub">// feeder &rarr; idea bank &rarr; draft in your voice &rarr; you finish &amp; post. nothing auto-posts. ever.</p>
     </div>
-    <div style="text-align:right">
-      <div style="display:flex;gap:6px;justify-content:flex-end;margin-bottom:6px;flex-wrap:wrap">
-        <a class="doclink" href="https://drive.google.com/drive/folders/YOUR_DRAFTS_FOLDER_ID" target="_blank" rel="noopener" style="padding:6px 11px;font-size:13px">📁 Drafts folder</a>
-        <a class="doclink" href="https://drive.google.com/drive/folders/YOUR_PHOTOS_FOLDER_ID" target="_blank" rel="noopener" style="padding:6px 11px;font-size:13px">🖼️ Photos folder</a>
-      </div>
+    <div class="sysbox" id="folderLinks">
       <div class="week-meta" id="weekLabel">&nbsp;</div>
-      <div class="feeder" id="feederStatus">Loading ideas&hellip;</div>
-      <div class="feeder" style="opacity:.55">open source · v1</div>
+      <div class="feeder" id="feederStatus">loading ideas&hellip;</div>
+      <div class="feeder"><span class="online">●</span> local &middot; served by serve.py</div>
     </div>
   </header>
 
@@ -176,7 +207,7 @@ const STORE_KEY = "linkedin_content_system_v1";
 //   color: any CSS colour - a hex like "#e11d48", or a var(--token) from the CSS above.
 //   desc:  the one-line reminder shown in the legend.
 const PILLARS = {
-  Repost:    {color:"#b7791f",          desc:"re-share a past hit (500+ likes)"},
+  Repost:    {color:"var(--amber)",     desc:"re-share a past hit (500+ likes)"},
   Workplace: {color:"var(--workplace)", desc:"culture, management, hiring, remote"},
   Business:  {color:"var(--business)",  desc:"bootstrapping, finance, productivity"},
   Marketing: {color:"var(--marketing)", desc:"B2B marketing, podcasting"},
@@ -366,10 +397,13 @@ function slotCard(x){
   return `<div class="slotcard" style="border-left-color:${pillarColor(x.pillar)}">
     <div class="hook">${esc(x.hook)}</div>
     ${x.note?`<div class="note">${esc(x.note)}</div>`:""}
+    ${pendingBox(x)}
     ${draftBox(x)}
+    ${picBox(x)}
     <div class="row">
       <span class="${pillClass(x.status)}">${x.status}</span>
       <select class="mini" onchange="setStatus('${x.id}',this.value)">${STATUSES.map(s=>`<option ${s===x.status?"selected":""}>${s}</option>`).join("")}</select>
+      <button class="mini" onclick="suggestPic('${x.id}')">📷 Suggest pic</button>
       <button class="ghost mini" onclick="unassign('${x.id}')">↩ bank</button>
     </div>
   </div>`;
@@ -378,28 +412,37 @@ function notesBox(x){
   const has = (x.draftNotes||"").trim().length>0;
   return `<details class="notesbox"${has?" open":""}>
     <summary>📝 Notes for drafting${has?` <span class="filled">· saved</span>`:""}</summary>
-    <textarea class="notesinput" placeholder="Add facts, real Fame numbers, the specific story, the angle you want — Claude uses this when drafting this post." onblur="saveNotes('${x.id}',this.value)">${esc(x.draftNotes||"")}</textarea>
+    <textarea class="notesinput" placeholder="Add facts, real numbers, the specific story, the angle you want — the writer uses this when drafting this post." onblur="saveNotes('${x.id}',this.value)">${esc(x.draftNotes||"")}</textarea>
   </details>`;
+}
+// Shows what's queued for Claude Code to process on its next run.
+function pendingBox(x){
+  const bits=[];
+  if(x.draftRequested) bits.push(`<span class="pending"><span class="spin"></span>✍️ Queued for drafting — run the drafter, then reload</span>`);
+  if(x.picRequested) bits.push(`<span class="pending"><span class="spin"></span>📷 Photo requested — run Claude Code, then reload</span>`);
+  if(x.syncFromDocRequested) bits.push(`<span class="pending"><span class="spin"></span>⟳ Pull-from-Doc requested — run Claude Code, then reload</span>`);
+  return bits.length?`<div>${bits.join(" ")}</div>`:"";
 }
 function picBox(x){
   const p=x.suggestedPic; if(!p||!p.id) return "";
   const url=p.url||("https://drive.google.com/file/d/"+p.id+"/view");
   const thumb="https://drive.google.com/thumbnail?id="+p.id+"&sz=w400";
+  const reason=esc(p.reason||"Suggested photo");
   return `<div class="picbox">
-    <a href="${url}" target="_blank" rel="noopener"><img src="${thumb}" alt="suggested photo" loading="lazy"></a>
+    <a href="${url}" target="_blank" rel="noopener" data-tip="${reason}"><img src="${thumb}" alt="suggested photo" data-tip="${reason}" loading="lazy"></a>
     <div class="picmeta">
-      <div class="why">📷 ${esc(p.reason||"Suggested photo")}</div>
-      <div>${esc(p.name||"")}</div>
-      <div class="picrow">
-        <a class="mini doclink" href="https://drive.google.com/uc?export=download&id=${p.id}" target="_blank" rel="noopener">⬇ Download image</a>
-        <a class="mini doclink" href="${url}" target="_blank" rel="noopener">Open in Drive</a>
-        <button class="mini" onclick="suggestPic('${x.id}')">↻ Suggest another</button>
-      </div>
+      <div class="why" data-tip="${reason}" title="${reason}">📷 Suggested photo <span class="infodot">ⓘ</span></div>
+      <div class="picname" title="${esc(p.name||"")}">${esc(p.name||"")}</div>
+    </div>
+    <div class="picrow">
+      <a class="mini doclink" href="https://drive.google.com/uc?export=download&id=${p.id}" target="_blank" rel="noopener" title="Download image">⬇ Save</a>
+      <a class="mini doclink" href="${url}" target="_blank" rel="noopener" title="Open in Drive">↗ Open</a>
+      <button class="mini" onclick="suggestPic('${x.id}')" title="Suggest a different photo">↻ Swap</button>
     </div>
   </div>`;
 }
 function draftBox(x){
-  if(x.docUrl) return `<div class="draftactions" style="margin:6px 0"><a class="mini doclink" href="${x.docUrl}" target="_blank" rel="noopener">📄 Open Google Doc${x.type?" · "+esc(x.type):""}</a>${x.draft?`<button class="mini" onclick="copyDraft('${x.id}')">📋 Copy for LinkedIn</button>`:""}</div>`;
+  if(x.docUrl) return `<div class="draftactions" style="margin:6px 0"><a class="mini doclink" href="${x.docUrl}" target="_blank" rel="noopener">📄 Open Google Doc${x.type?" · "+esc(x.type):""}</a>${x.draft?`<button class="mini" onclick="copyDraft('${x.id}')" title="Copies the text stored here. Edited the Doc? Hit 'Pull edits' first.">📋 Copy for LinkedIn</button><button class="mini" onclick="pullFromDoc('${x.id}')" title="Pull your latest Google Doc text back in, so Copy matches your edits (needs Claude Code + the Docs setup).">⟳ Pull edits</button>`:""}</div>`;
   // Reposts have no Doc - they re-share the original post. Link to it instead.
   if(x.pillar==="Repost" || x.type==="Repost"){
     const m=(x.draft||"").match(/https?:\/\/\S+/);
@@ -428,6 +471,7 @@ function renderIdeas(){
         ${(x.source||"").toLowerCase().includes("draft of the day")?`<div style="margin:3px 0"><span class="daily-badge">☀️ Draft of the day · auto-written by the daily scan</span></div>`:""}
         <div class="meta"><span class="${pillClass(x.status)}">${x.status}</span> ${x.note?esc(x.note)+" · ":""}${esc(x.source||"manual")}${x.status==="posted"?" · ✓ posted":""}</div>
         ${x.sourceUrl?`<div style="margin:5px 0"><a class="mini doclink" href="${x.sourceUrl}" target="_blank" rel="noopener">🔗 Review original post</a></div>`:""}
+        ${pendingBox(x)}
         ${notesBox(x)}
         ${draftBox(x)}
         ${picBox(x)}
@@ -467,9 +511,17 @@ window.del=id=>{
 };
 window.suggestPic=(id)=>{
   const x=state.ideas.find(i=>i.id===id); if(!x) return;
+  x.picRequested=true; save(); render();
   fetch("/api/suggest-pic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({items:[{srcId:x.srcId||null,hook:x.hook,pillar:x.pillar,draft:x.draft,draftNotes:x.draftNotes}]})})
-    .then(r=>r.json()).then(d=>{ toast(d&&d.ok&&((d.queued||0)+(d.added||0))>0?"Finding a photo 📷 — reload in a few minutes":"Requested"); })
-    .catch(()=>toast("Couldn't reach server"));
+    .then(r=>r.json()).then(d=>{ toast(d&&d.ok&&((d.queued||0)+(d.added||0))>0?"Photo requested 📷 — run Claude Code, then reload":"Requested"); })
+    .catch(()=>toast("Couldn't reach server (is serve.py running?)"));
+};
+window.pullFromDoc=(id)=>{
+  const x=state.ideas.find(i=>i.id===id); if(!x||(!x.docId&&!x.docUrl)){ toast("No Google Doc linked yet"); return; }
+  x.syncFromDocRequested=true; save(); render();
+  fetch("/api/sync-doc",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({items:[{srcId:x.srcId||null,hook:x.hook,pillar:x.pillar,docId:x.docId||null,docUrl:x.docUrl||null}]})})
+    .then(r=>r.json()).then(d=>{ toast(d&&d.ok?"Pull-from-Doc requested ⟳ — run Claude Code, then reload":"Requested"); })
+    .catch(()=>toast("Couldn't reach server (is serve.py running?)"));
 };
 window.saveNotes=(id,val)=>{
   const x=state.ideas.find(i=>i.id===id); if(!x) return;
@@ -507,11 +559,11 @@ document.getElementById("addBtn").onclick=()=>{
 document.getElementById("newHook").addEventListener("keydown",e=>{ if(e.key==="Enter") document.getElementById("addBtn").click(); });
 
 function draftPrompt(items){
-  let p="Draft LinkedIn post(s) in my voice. Use my voice guide (voice-guide.md in the outputs folder / Drive 'LinkedIn Content System' folder) — short contrarian hook, one idea per line, real Fame numbers, dry and self-deprecating, no hashtags. I will finish and post manually.\n\n";
+  let p="Draft LinkedIn post(s) in my voice. Use my voice guide (voice-guide.md) and voice-examples.md — follow the hooks, structure, and rules in there; no hashtags. I will finish and post manually.\n\n";
   items.forEach(x=>{
     const day=x.day?(x.day+" — "):"";
     p+=`• ${day}[${x.pillar}] ${x.hook}${x.note?" — "+x.note:""}\n`;
-    if((x.draftNotes||"").trim()) p+=`   Notes for drafting (Tom's context — use these): ${x.draftNotes.trim()}\n`;
+    if((x.draftNotes||"").trim()) p+=`   Notes for drafting (my context — use these): ${x.draftNotes.trim()}\n`;
   });
   p+="\nGive me each as a ready-to-edit draft, and mark them 'drafted' in the dashboard when done.";
   return p;
@@ -522,18 +574,19 @@ function draftPrompt(items){
    ready prompt to the clipboard so you can paste it to Claude. */
 function requestDraft(items){
   if(!items.length) return;
+  items.forEach(x=>{ x.draftRequested=true; }); save(); render();
   const payload={items:items.map(x=>({srcId:x.srcId||null,hook:x.hook,note:x.note,pillar:x.pillar,draft:x.draft,type:x.type,day:x.day,date:x.date}))};
   fetch("/api/draft-request",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
     .then(r=>r.json())
     .then(d=>{
-      if(d&&d.ok&&((d.queued||0)+(d.added||0))>0){ toast("Queued ✍️ — Claude will draft this automatically. Reload in a few minutes."); }
+      if(d&&d.ok&&((d.queued||0)+(d.added||0))>0){ toast("Queued ✍️ — run the drafter (prompts/draft.md) in Claude Code, then reload."); }
       else { copyPromptFallback(items); }
     })
     .catch(()=>copyPromptFallback(items));
 }
 function copyPromptFallback(items){
   const text=draftPrompt(items);
-  const done=()=>toast("Draft prompt copied — paste it to Claude in this tool");
+  const done=()=>toast("Draft prompt copied — paste it to Claude Code");
   if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done)); }
   else fallbackCopy(text,done);
 }
@@ -648,6 +701,21 @@ window.addCreator=()=>{
   creators.push({handle:h, name:name||h, focus:focus, active:true});
   renderCreators(); saveCreators(); toast("Creator added");
 };
+
+/* ---------- Instant hover tooltip (escapes card overflow clipping) ---------- */
+(function(){
+  const tip=document.createElement("div"); tip.id="globalTip"; document.body.appendChild(tip);
+  function place(el){
+    const r=el.getBoundingClientRect(); tip.style.display="block";
+    const w=tip.offsetWidth, h=tip.offsetHeight;
+    let left=r.left; if(left+w>window.innerWidth-8) left=window.innerWidth-8-w; if(left<8) left=8;
+    let top=r.bottom+6; if(top+h>window.innerHeight-8) top=r.top-6-h;
+    tip.style.left=left+"px"; tip.style.top=top+"px";
+  }
+  document.addEventListener("mouseover",e=>{ const el=e.target.closest("[data-tip]"); if(!el) return; tip.textContent=el.getAttribute("data-tip"); place(el); });
+  document.addEventListener("mouseout",e=>{ const el=e.target.closest("[data-tip]"); if(el && !el.contains(e.relatedTarget)) tip.style.display="none"; });
+  document.addEventListener("scroll",()=>{ tip.style.display="none"; }, true);
+})();
 
 /* ---------- Boot ---------- */
 loadCreators(); loadInspiration(); renderLegend(); render(); syncFile();

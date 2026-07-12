@@ -15,8 +15,9 @@ Built by [Tom Hunt](https://tomhunt.io), founder & CEO of [Fame](https://fame.so
 - **✍️ A writer trained on you** - drafts key off *your* voice guide and a corpus of *your own* real posts, so they sound like you, not ChatGPT.
 - **👥 Editable creator list** - add or pause the creators the scan watches, from the dashboard.
 - **🧩 Chrome extension** - save any LinkedIn post to your bank (with the real permalink) and add any profile to your daily scan, straight from LinkedIn.
-- **📄 Google Docs output** - every draft lands in its own Google Doc, ready to edit; plus a "Copy for LinkedIn" button.
+- **📄 Google Docs output** - every draft lands in its own Google Doc to edit; a **Copy for LinkedIn** button copies the stored text, and a **Pull edits** button syncs your Doc edits back so Copy matches them.
 - **📷 Suggest a photo** - matches a post to a shot from your photo library.
+- **🖥️ Terminal UI** - a dark, monospace, hacker-console theme. Don't like it? It's plain CSS at the top of `dashboard/index.html` - restyle away.
 
 The whole thing is model-free at rest (a static dashboard + a tiny local server + JSON files). The AI parts - drafting, scanning, captioning - run in Claude Code.
 
@@ -58,7 +59,7 @@ You ── Copy for LinkedIn ──▶ paste into LinkedIn ──▶ post / sche
    ```
    Open **http://localhost:8000/dashboard/**.
 3. **Make it yours:** edit `voice-guide.md` (how your posts sound) and `data/creators.json` (who to scan). Drop a few of your best past posts into `voice-examples.md`.
-4. **The AI parts:** open the folder in Claude Code and use the prompts in `prompts/` (feeder + weekly-draft), or set them up as scheduled tasks. Drafting uses the `linkedin-writer` agent, which reads your voice guide + examples.
+4. **The AI parts:** open the folder in Claude Code and run the prompts in `prompts/` (`feeder.md` to scan, `draft.md` to draft, `weekly-draft.md` for a weekly batch) - by hand or on a schedule. See **[Run the scanner & drafter](#run-the-scanner--drafter)** below for exactly how. Drafting uses the `linkedin-writer` agent, which reads your voice guide + examples.
 5. **Chrome extension (optional):** `chrome://extensions` → enable Developer mode → **Load unpacked** → select `chrome-extension/`. It saves posts/creators by calling your local server, so it only works while `python3 serve.py` is running.
 
 > The Google Docs and Google Drive photo features assume you're driving them through Claude Code with a Google Drive connector. They're optional - the core planner + writer work without them.

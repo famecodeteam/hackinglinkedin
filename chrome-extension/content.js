@@ -1,14 +1,14 @@
-// Fame LinkedIn Content Helper - injects two buttons on LinkedIn:
+// Hacking LinkedIn helper - injects two buttons on LinkedIn:
 //  1. "Add to bank & draft" on each feed/profile post
 //  2. "Add to daily scan" on each profile page
 // LinkedIn now serves obfuscated class names and no data-urn, so post detection is
 // class-agnostic: anchor on each post's "Comment" button and walk up to the container.
 (function () {
-  const BTN = "fame-helper-btn";
+  const BTN = "hl-helper-btn";
 
   function toast(msg, ok) {
-    let t = document.getElementById("fame-helper-toast");
-    if (!t) { t = document.createElement("div"); t.id = "fame-helper-toast"; document.body.appendChild(t); }
+    let t = document.getElementById("hl-helper-toast");
+    if (!t) { t = document.createElement("div"); t.id = "hl-helper-toast"; document.body.appendChild(t); }
     t.textContent = msg;
     t.classList.toggle("err", ok === false);
     t.classList.add("show");
@@ -108,16 +108,16 @@
     return "";
   }
   function addPostButton(container) {
-    if (!container || container.dataset.fameDone) return;
+    if (!container || container.dataset.hlDone) return;
     const raw = container.innerText || "";
-    if (/\bPromoted\b/.test(raw.slice(0, 400)) || /follow this Page/i.test(raw)) { container.dataset.fameDone = "skip"; return; } // skip ads
+    if (/\bPromoted\b/.test(raw.slice(0, 400)) || /follow this Page/i.test(raw)) { container.dataset.hlDone = "skip"; return; } // skip ads
     const { author, body } = extractPost(container);
     if (!body || body.length < 40) return;
-    container.dataset.fameDone = "1";
+    container.dataset.hlDone = "1";
 
     // Pillar picker - defaults to a best guess, but you choose.
     const sel = document.createElement("select");
-    sel.className = "fame-helper-select";
+    sel.className = "hl-helper-select";
     const guessed = guessPillar(body);
     ["Workplace", "Business", "Marketing", "AI", "Wildcard"].forEach(p => {
       const o = document.createElement("option");
@@ -150,7 +150,7 @@
       });
     });
     const holder = document.createElement("div");
-    holder.className = "fame-helper-holder";
+    holder.className = "hl-helper-holder";
     holder.appendChild(sel);
     holder.appendChild(btn);
     container.prepend(holder);
@@ -167,13 +167,13 @@
   function addProfileButton() {
     const handle = currentHandle();
     if (!handle) return;
-    if (document.getElementById("fame-add-creator")) return;
+    if (document.getElementById("hl-add-creator")) return;
     const main = document.querySelector("main");
     if (!main) return;
     const nameEl = main.querySelector("h1");
     const name = nameEl ? nameEl.innerText.trim() : handle;
     const btn = document.createElement("button");
-    btn.id = "fame-add-creator"; btn.className = BTN + " profile"; btn.type = "button";
+    btn.id = "hl-add-creator"; btn.className = BTN + " profile"; btn.type = "button";
     btn.textContent = "＋ Add to daily scan";
     btn.addEventListener("click", () => {
       btn.disabled = true; btn.textContent = "Adding…";
@@ -184,7 +184,7 @@
       });
     });
     const holder = document.createElement("div");
-    holder.className = "fame-helper-holder profile";
+    holder.className = "hl-helper-holder profile";
     holder.appendChild(btn);
     main.prepend(holder);
   }

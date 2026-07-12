@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Fame LinkedIn Content Helper",
+  "name": "Hacking LinkedIn Helper",
   "version": "1.0",
   "description": "Add LinkedIn posts to your content bank (and auto-draft them), and add creators to your daily scan - straight from LinkedIn.",
   "host_permissions": [

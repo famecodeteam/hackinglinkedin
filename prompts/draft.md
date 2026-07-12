@@ -14,3 +14,16 @@ When you click **Draft** on an idea in the dashboard, it flags that idea in `dat
 5. Reload the dashboard — the drafts (and any Doc links) show on their cards, ready for you to finish and post.
 
 Only produce drafts. Never publish to LinkedIn.
+
+---
+
+## Also: "Pull edits" (sync a Google Doc back)
+
+If you edit a draft in its Google Doc, the dashboard's **Pull edits** button flags that idea in `data/ideas.json` with `"syncFromDocRequested": true`. While you're here, handle those too:
+
+1. Find items where `"syncFromDocRequested"` is `true`.
+2. For each, read the current text of its Google Doc (via your Google Drive connector, using the item's `docId`).
+3. Set the item's `draft` to that text and **remove** the `syncFromDocRequested` flag. Save.
+4. If the Doc can't be read, just remove the flag and leave the existing draft untouched — never blank it.
+
+Now the dashboard's "Copy for LinkedIn" button matches your edited Doc. (Only relevant if you use the optional Google Docs integration.)
