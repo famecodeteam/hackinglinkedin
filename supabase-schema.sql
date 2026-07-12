@@ -1,4 +1,4 @@
--- LinkedIn Content System - Supabase schema
+-- Hacking LinkedIn - Supabase schema
 -- Run this once in the Supabase SQL editor.
 -- Each table stores one item per row as a JSON blob (so the app's data shape is preserved).
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tiny local server for the LinkedIn Content System dashboard.
+"""Tiny local server for the Hacking LinkedIn dashboard.
 
 Serves the static dashboard AND accepts two POSTs from the dashboard:
   /api/draft-request  -> flags ideas (draftRequested:true) for the sweeper.

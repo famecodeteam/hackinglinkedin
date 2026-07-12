@@ -1,4 +1,4 @@
-# LinkedIn Content System — Claude Code project
+# Hacking LinkedIn — Claude Code project
 
 A personal LinkedIn content engine. **Your job (as the AI): produce starting drafts in the owner's voice and keep the idea bank fed. Nothing here ever auto-posts.**
 
