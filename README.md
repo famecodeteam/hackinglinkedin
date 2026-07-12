@@ -1,4 +1,4 @@
-# LinkedIn Content System
+# Hacking LinkedIn
 
 A self-hosted content engine for LinkedIn. It scans creators you trust for inspiration, drafts posts in **your** voice (trained on your own past posts), plans your week, and hands you finished drafts in Google Docs. **Nothing ever auto-posts** - you finish and post everything yourself.
 
