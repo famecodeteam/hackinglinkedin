@@ -4,11 +4,13 @@ Run daily (or on a schedule). Harvests inspiration into the idea bank. Does NOT 
 
 Time-box to ~15 minutes.
 
+**How to run it:** paste this prompt into Claude Code (with the repo folder open). LinkedIn blocks plain HTTP, so you need a **browser tool** — [Claude in Chrome](https://www.anthropic.com/claude-in-chrome) or a Playwright MCP — and to be **signed into LinkedIn** in that browser. To run it automatically each morning, see the README section "Run the scanner & drafter".
+
 ## What to do
 
 1. Read `voice-guide.md` (for phrasing hooks) and `pillars.md` (for pillars/enemies).
-2. Scan LinkedIn across the five pillars. Read your creator list from data/creators.json (scan the active ones). Visit each .
-   Then open-web keyword search for thin pillars — especially Marketing and AI. Keywords:
+2. Scan LinkedIn across your pillars. Read your creator list from `data/creators.json` and scan the active ones — visit each creator's recent-activity page (`https://www.linkedin.com/in/<handle>/recent-activity/all/`) and read their latest posts.
+   Then do an open-web keyword search for any thin pillars. Example keywords:
    - Workplace: "toxic boss", "quit my job", "bad manager signs", "return to office", "micromanagement"
    - Business: "bootstrapped", "turned down VC", "profitable not fundable", "cashflow"
    - Marketing: "B2B podcast", "content that converts", "we stopped cold outreach"
@@ -27,4 +29,6 @@ Time-box to ~15 minutes.
 
 ## LinkedIn access
 
-LinkedIn blocks plain HTTP fetching, so use a browser MCP (Claude in Chrome or Playwright). To save tokens, prefer a small Node/Playwright script that extracts post text + reaction counts and writes the JSON — only use the model for phrasing the hooks. See README "Feeder as a script".
+LinkedIn blocks plain HTTP fetching, so use a browser tool (Claude in Chrome or a Playwright MCP) while signed into LinkedIn. Optional token-saver: have Claude write a small Playwright script that extracts each post's text + reaction count into JSON, and only use the model to phrase the hooks — that keeps most of the run out of the model.
+
+> Note: `data/inbox/` is where daily idea files land before they're merged into `data/ideas.json` (step 6). It ships empty — the feeder creates dated files in it.

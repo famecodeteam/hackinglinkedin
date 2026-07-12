@@ -14,6 +14,7 @@ Flow: **feeder harvests inspiration → idea bank (`data/ideas.json`) → draft 
 - `data/inspiration.json` — posts the scan surfaced.
 - `dashboard/index.html` — a local dashboard (served by `serve.py`). Reads/writes the data files.
 - `prompts/feeder.md` — the recurring scan prompt.
+- `prompts/draft.md` — turns ideas flagged `draftRequested` (the dashboard "Draft" button) into finished posts.
 - `prompts/weekly-draft.md` — the weekly batch-drafting prompt.
 - `.claude/agents/linkedin-writer.md` — the writer subagent. Delegate drafting to it so every draft follows the voice rules identically.
 

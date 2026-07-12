@@ -287,7 +287,7 @@ async function syncFile(){
         // Surface a Google Doc link written to the file, even if the draft text didn't change.
         if(it.docUrl && it.docUrl!==local.docUrl && local.status!=="posted"){ local.docUrl=it.docUrl; local.docId=it.docId||local.docId; if(!updated) updated++; }
         // Adopt authoritative task state from the file (status/slot/pillar are written through by
-        // the dashboard, the sweeper, or a server-side change) so it persists across reloads.
+        // the dashboard, the drafter, or a server-side change) so it persists across reloads.
         if(it.status && it.status!==local.status){ local.status=it.status; if(!updated) updated++; }
         if(("day" in it) && (it.day||null)!==(local.day||null)) local.day=it.day||null;
         if(("date" in it) && (it.date||null)!==(local.date||null)) local.date=it.date||null;
@@ -475,7 +475,7 @@ window.saveNotes=(id,val)=>{
   const x=state.ideas.find(i=>i.id===id); if(!x) return;
   if((x.draftNotes||"")===(val||"")) return; // no change on blur
   x.draftNotes=val; save(); // persist to browser immediately
-  // persist to the shared file so the writer/sweeper see it (upserts if not in file yet)
+  // persist to the shared file so the writer/drafter see it (upserts if not in file yet)
   fetch("/api/update-note",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({items:[{srcId:x.srcId||null,hook:x.hook,pillar:x.pillar,draftNotes:val}]})})
     .then(r=>r.json()).then(d=>{ toast(d&&d.ok?"Notes saved ✓":"Notes saved locally"); })
     .catch(()=>toast("Notes saved locally (server offline)"));

@@ -2,7 +2,7 @@
 """Tiny local server for the Hacking LinkedIn dashboard.
 
 Serves the static dashboard AND accepts two POSTs from the dashboard:
-  /api/draft-request  -> flags ideas (draftRequested:true) for the sweeper.
+  /api/draft-request  -> flags ideas (draftRequested:true) for the drafter (prompts/draft.md).
   /api/update-note    -> saves Tom's "notes for drafting" (draftNotes) onto an idea.
 Both match an incoming post to data/ideas.json by id or normalised hook; if it
 isn't there (a browser-only / drifted idea) it is UPSERTED, so the action always

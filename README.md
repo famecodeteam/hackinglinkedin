@@ -37,15 +37,19 @@ You ── Copy for LinkedIn ──▶ paste into LinkedIn ──▶ post / sche
 - `dashboard/` - the web dashboard (static HTML/JS).
 - `serve.py` - a tiny local server: serves the dashboard and persists changes to the JSON files.
 - `data/` - your content: `ideas.json` (the bank), `creators.json` (who the scan watches), `inspiration.json`, `photos.json`.
-- `prompts/`, `voice-guide.md`, `voice-examples.md` - how the writer sounds (this is the bit you make your own).
-- `chrome-extension/` - the LinkedIn helper (load unpacked).
-- Scheduled tasks (feeder / sweeper / weekly-draft) run in Claude Code and read/write `data/`.
+- `prompts/` - the jobs you run in Claude Code: `feeder.md` (daily scan), `draft.md` (turn "Draft"-clicked ideas into posts), `weekly-draft.md` (batch-draft the week).
+- `voice-guide.md`, `voice-examples.md` - how the writer sounds (this is the bit you make your own).
+- `chrome-extension/` - the LinkedIn helper (load unpacked; needs the local server running).
 
 ---
 
 ## Quick start
 
-**Requirements:** Python 3, and [Claude Code](https://claude.com/claude-code) for the AI parts (drafting, scanning).
+**Requirements:**
+- **Python 3** - runs the dashboard (no other dependencies).
+- **[Claude Code](https://claude.com/claude-code)** - runs the AI parts (drafting, scanning, captioning).
+- **A browser tool for Claude** - [Claude in Chrome](https://www.anthropic.com/claude-in-chrome) or a Playwright MCP, **signed into LinkedIn** - needed only for the daily scanner (LinkedIn blocks plain fetching).
+- *(Optional)* a **Google Drive connector** in Claude Code - only if you want drafts written into Google Docs + the photo-suggest feature. The planner and writer work fine without it.
 
 1. **Clone** this repo.
 2. **Run the dashboard:**
@@ -55,9 +59,31 @@ You ── Copy for LinkedIn ──▶ paste into LinkedIn ──▶ post / sche
    Open **http://localhost:8000/dashboard/**.
 3. **Make it yours:** edit `voice-guide.md` (how your posts sound) and `data/creators.json` (who to scan). Drop a few of your best past posts into `voice-examples.md`.
 4. **The AI parts:** open the folder in Claude Code and use the prompts in `prompts/` (feeder + weekly-draft), or set them up as scheduled tasks. Drafting uses the `linkedin-writer` agent, which reads your voice guide + examples.
-5. **Chrome extension (optional):** `chrome://extensions` → enable Developer mode → **Load unpacked** → select `chrome-extension/`.
+5. **Chrome extension (optional):** `chrome://extensions` → enable Developer mode → **Load unpacked** → select `chrome-extension/`. It saves posts/creators by calling your local server, so it only works while `python3 serve.py` is running.
 
 > The Google Docs and Google Drive photo features assume you're driving them through Claude Code with a Google Drive connector. They're optional - the core planner + writer work without them.
+
+---
+
+## Run the scanner & drafter
+
+The dashboard is static; the "AI parts" are just prompts you run in **Claude Code** with the repo folder open. Three jobs, each a file in `prompts/`:
+
+| Job | What it does | How to run |
+|---|---|---|
+| **Scanner** (`prompts/feeder.md`) | Scans your creators + keywords, drops 5-8 fresh ideas into the bank each day | Needs a browser tool (Claude in Chrome / Playwright) signed into LinkedIn |
+| **Drafter** (`prompts/draft.md`) | Turns the ideas you clicked **Draft** on into finished posts in your voice | Runs any time; no browser needed |
+| **Weekly** (`prompts/weekly-draft.md`) | Batch-drafts the whole coming week in one go | Runs any time |
+
+**Two ways to run each:**
+
+1. **By hand** - open the repo in Claude Code and say *"run the feeder prompt"* (or paste the file's contents). Do this whenever you like.
+2. **On a schedule (hands-off)** - ask Claude Code to set it up as a **scheduled task**, e.g.:
+   > *"Create a scheduled task that runs `prompts/feeder.md` every weekday at 8am."*
+
+   Claude Code runs it automatically on that cadence and writes the results into `data/` - reload the dashboard to see them. (A daily feeder + a drafter every ~15 min is a good starting cadence.)
+
+**First run, end to end:** run the **scanner** → open the dashboard and triage the new ideas (slot them to days, add notes) → click **Draft** on the ones you want → run the **drafter** → reload → finish each draft and post it yourself.
 
 ---
 
