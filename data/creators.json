@@ -1,0 +1,7 @@
+{
+  "meta": { "note": "The creators the daily scan watches. Add the LinkedIn handle (the part after /in/) of anyone whose posts inspire you. Pause one by setting active:false, or add/remove them from the Creators tab in the dashboard." },
+  "creators": [
+    { "handle": "example-handle-1", "name": "A creator you follow", "focus": "Your niche", "active": true },
+    { "handle": "example-handle-2", "name": "Another creator", "focus": "Another angle", "active": true }
+  ]
+}

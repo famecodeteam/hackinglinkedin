@@ -1,0 +1,6 @@
+{
+  "ideas": [
+    { "id": "example-1", "pillar": "Workplace", "hook": "People don't quit jobs. They quit managers who meddle.", "note": "Example idea - delete these and add your own, or let the feeder fill the bank.", "source": "manual", "status": "idea", "draft": "", "type": "", "day": null, "date": null, "draftNotes": "", "createdAt": 0 },
+    { "id": "example-2", "pillar": "AI", "hook": "Why you should vibe-code the SaaS tool you keep paying for.", "note": "Example idea.", "source": "manual", "status": "idea", "draft": "", "type": "", "day": null, "date": null, "draftNotes": "", "createdAt": 0 }
+  ]
+}

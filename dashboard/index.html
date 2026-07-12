@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LinkedIn Content System</title>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f4f5f7; --card:#ffffff; --ink:#1d2226; --muted:#5e6b74; --line:#e3e6ea;
+  --brand:#0a66c2; --brand-ink:#084a8f;
+  --workplace:#c2410c; --business:#0a66c2; --marketing:#7c3aed; --ai:#0f766e; --wildcard:#b91c1c;
+  --posted:#15803d; --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 20px 60px;}
+header.top{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
+h1{font-size:20px;margin:0;font-weight:700;letter-spacing:-.2px;}
+.sub{color:var(--muted);font-size:13px;margin:0 0 16px;}
+.feeder{font-size:12px;color:var(--muted);}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 14px;}
+.tabs{display:flex;gap:4px;margin:4px 0 18px;border-bottom:1px solid var(--line);}
+.tab{border:none;background:transparent;border-bottom:2px solid transparent;border-radius:0;padding:9px 13px;font-weight:700;font-size:13px;color:var(--muted);margin-bottom:-1px;}
+.tab.active{color:var(--ink);border-bottom-color:var(--brand);}
+.tab:hover{background:#eef1f4;}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:#fff;border:1px solid var(--line);}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+.section-h{display:flex;align-items:center;justify-content:space-between;margin:22px 0 12px;}
+.section-h h2{font-size:15px;margin:0;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);}
+/* Week board */
+.week{display:flex;flex-direction:column;gap:22px;}
+.weekblock-h{display:flex;align-items:baseline;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:9px;}
+.weekblock-h .sub{font-weight:500;text-transform:none;letter-spacing:0;color:#9aa5ad;}
+.weekblock.ahead .weekgrid{opacity:.92;}
+.weekgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+.day{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:150px;overflow:hidden;}
+.day-h{padding:10px 12px;border-bottom:1px solid var(--line);}
+.day-h .d{font-weight:700;font-size:13px;}
+.day-h .p{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+.day-body{padding:10px;display:flex;flex-direction:column;gap:8px;flex:1;}
+.slotcard{border:1px solid var(--line);border-left:3px solid var(--muted);border-radius:8px;padding:8px 9px;background:#fff;font-size:13px;}
+.slotcard .hook{font-weight:600;line-height:1.35;}
+.slotcard .note{color:var(--muted);font-size:11.5px;margin-top:3px;}
+.slotcard .row{display:flex;gap:6px;align-items:center;margin-top:7px;flex-wrap:wrap;}
+.empty-slot{color:#9aa5ad;font-size:12px;text-align:center;padding:14px 4px;border:1px dashed var(--line);border-radius:8px;}
+.statuspill{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:2px 6px;border-radius:5px;background:#eef1f4;color:var(--muted);}
+.statuspill.in-progress{background:#e8e8f5;color:#4a4a8a;}
+.daily-badge{display:inline-block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:2px 8px;border-radius:5px;background:#f6cd67;color:#5a4a12;}
+.statuspill.drafted{background:#e0edfb;color:var(--brand-ink);}
+.statuspill.finishing{background:#fef3c7;color:#92700e;}
+.statuspill.posted{background:#dcfce7;color:var(--posted);}
+button{font:inherit;cursor:pointer;border-radius:7px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:5px 10px;font-weight:600;font-size:12px;}
+button:hover{background:#f7f8fa;}
+button.primary{background:var(--brand);border-color:var(--brand);color:#fff;}
+button.primary:hover{background:var(--brand-ink);}
+button.mini{padding:3px 7px;font-size:11px;}
+button.ghost{border:none;background:transparent;color:var(--muted);padding:3px 5px;}
+button.ghost:hover{color:var(--ink);background:#eef1f4;}
+.draftbtn{margin-top:6px;}
+select,input,textarea{font:inherit;border:1px solid var(--line);border-radius:7px;padding:6px 8px;background:#fff;color:var(--ink);}
+select.mini{padding:3px 6px;font-size:11px;}
+/* Idea bank */
+.bank{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:14px;}
+.addrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+.addrow input.hookin{flex:1;min-width:220px;}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.filters button{font-size:11.5px;padding:4px 9px;}
+.filters button.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+.idea{display:flex;gap:10px;align-items:flex-start;padding:10px 8px;border-top:1px solid var(--line);}
+.idea:first-child{border-top:none;}
+.idea .body{flex:1;min-width:0;}
+.idea .hook{font-weight:600;}
+.idea .meta{color:var(--muted);font-size:11.5px;margin-top:2px;}
+.idea .controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:7px;}
+.pill-tag{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:2px 7px;border-radius:5px;color:#fff;white-space:nowrap;}
+.empty{color:var(--muted);text-align:center;padding:26px;font-size:13px;}
+.draftbox{margin:6px 0;border:1px solid var(--line);border-radius:7px;background:#fafbfc;}
+.draftbox summary{cursor:pointer;padding:6px 9px;font-size:11.5px;font-weight:700;color:var(--brand-ink);list-style:none;}
+.draftbox summary::-webkit-details-marker{display:none;}
+.draftbox[open] summary{border-bottom:1px solid var(--line);}
+.drafttext{white-space:pre-wrap;font:12.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:9px 11px;margin:0;color:var(--ink);}
+.draftbox button{margin:0 9px 9px;}
+.draftactions{display:flex;gap:8px;align-items:center;margin:0 9px 9px;flex-wrap:wrap;}
+.draftactions button{margin:0;}
+a.doclink{display:inline-flex;align-items:center;gap:4px;text-decoration:none;color:var(--brand-ink);border:1px solid var(--line);border-radius:7px;padding:3px 8px;font-weight:600;font-size:11px;line-height:1.35;background:#fff;white-space:normal;max-width:100%;}
+a.doclink:hover{background:#f7f8fa;}
+.hint{font-size:11.5px;color:var(--muted);margin-top:6px;}
+.notesbox{margin:6px 0;border:1px solid var(--line);border-radius:7px;background:#fffdf7;}
+.notesbox summary{cursor:pointer;padding:6px 9px;font-size:11.5px;font-weight:700;color:#92700e;list-style:none;}
+.notesbox summary::-webkit-details-marker{display:none;}
+.notesbox[open] summary{border-bottom:1px solid var(--line);}
+.notesbox .filled{color:#15803d;}
+.notesinput{width:100%;border:none;background:transparent;border-radius:0 0 7px 7px;padding:8px 10px;font:12.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);resize:vertical;min-height:52px;display:block;}
+.notesinput:focus{outline:none;background:#fff;}
+.picbox{margin:6px 0;display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:8px;background:#fff;}
+.picbox img{width:92px;height:92px;object-fit:cover;border-radius:6px;flex:none;background:#eef1f4;}
+.picbox .picmeta{font-size:11.5px;color:var(--muted);min-width:0;}
+.picbox .picmeta .why{color:var(--ink);font-weight:600;margin-bottom:2px;}
+.picbox .picrow{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.week-meta{font-size:12px;color:var(--muted);font-weight:600;}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1d2226;color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;box-shadow:var(--shadow);opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;}
+.toast.show{opacity:1;}
+input.needsinput{border-color:var(--wildcard);box-shadow:0 0 0 3px rgba(185,28,28,.15);}
+@keyframes flashnew{from{background:#fff7d6;}to{background:transparent;}}
+.idea.justadded{animation:flashnew 1.6s ease-out;}
+@media(max-width:820px){.weekgrid{grid-template-columns:1fr 1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>LinkedIn Content System</h1>
+      <p class="sub">Feeder &rarr; idea bank &rarr; draft in your voice &rarr; you finish &amp; post. Nothing auto-posts.</p>
+    </div>
+    <div style="text-align:right">
+      <div style="display:flex;gap:6px;justify-content:flex-end;margin-bottom:6px;flex-wrap:wrap">
+        <a class="doclink" href="https://drive.google.com/drive/folders/YOUR_DRAFTS_FOLDER_ID" target="_blank" rel="noopener" style="padding:6px 11px;font-size:13px">📁 Drafts folder</a>
+        <a class="doclink" href="https://drive.google.com/drive/folders/YOUR_PHOTOS_FOLDER_ID" target="_blank" rel="noopener" style="padding:6px 11px;font-size:13px">🖼️ Photos folder</a>
+      </div>
+      <div class="week-meta" id="weekLabel">&nbsp;</div>
+      <div class="feeder" id="feederStatus">Loading ideas&hellip;</div>
+      <div class="feeder" style="opacity:.55">open source · v1</div>
+    </div>
+  </header>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-content" onclick="showTab('content')">📅 Content</button>
+    <button class="tab" id="tab-inspiration" onclick="showTab('inspiration')">💡 Inspiration</button>
+    <button class="tab" id="tab-creators" onclick="showTab('creators')">👥 Creators the scan watches</button>
+  </div>
+
+  <div id="view-content">
+  <div class="section-h">
+    <h2>This week</h2>
+  </div>
+  <div class="week" id="week"></div>
+  <div class="hint">Assign an idea to a day from the idea bank below. Each day defaults to its pillar, but you can slot any idea anywhere.</div>
+
+  <div class="section-h">
+    <h2>Idea bank</h2>
+    <span class="feeder" id="bankCount"></span>
+  </div>
+  <div class="bank">
+    <div class="addrow">
+      <input class="hookin" id="newHook" placeholder="New post idea (the hook / core line)&hellip;">
+      <select id="newPillar" class="mini"></select>
+      <input id="newNote" placeholder="Optional note / angle" style="flex:1;min-width:160px">
+      <button class="primary" id="addBtn">Add idea</button>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div id="ideaList"></div>
+  </div>
+  </div><!-- /view-content -->
+
+  <div id="view-creators" style="display:none"></div>
+  <div id="view-inspiration" style="display:none"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA_URL = "../data/ideas.json";
+const STORE_KEY = "linkedin_content_system_v1";
+
+const PILLARS = {
+  Repost:{color:"#b7791f", desc:"re-share a past hit (500+ likes)"},
+  Workplace:{color:"var(--workplace)", desc:"culture, management, hiring, remote"},
+  Business:{color:"var(--business)", desc:"bootstrapping, finance, productivity"},
+  Marketing:{color:"var(--marketing)", desc:"B2B marketing, podcasting"},
+  AI:{color:"var(--ai)", desc:"building in public, vibe coding"},
+  Wildcard:{color:"var(--wildcard)", desc:"transparent CEO diary"}
+};
+const DAYS = ["Mon","Tue","Wed","Thu","Fri"];
+const FIXED_DAY = {Mon:"Repost", Tue:"Marketing"};
+const ROTATE_POOL = ["Workplace","Business","AI","Wildcard"];
+const DAY_TYPE = {Mon:"Repost a past hit", Tue:"Fame case study", Wed:"Rotating category", Thu:"Rotating category", Fri:"Rotating category"};
+const WEEKS_SHOWN = 3;
+function weekNum(d){ return Math.floor((d - new Date(d.getFullYear(),0,1))/(7*864e5)); }
+function dayPillar(day, mon){
+  if(FIXED_DAY[day]) return FIXED_DAY[day];
+  const order=["Wed","Thu","Fri"], idx=order.indexOf(day);
+  return ROTATE_POOL[(weekNum(mon||mondayOf(new Date()))+idx)%ROTATE_POOL.length];
+}
+function isRotating(day){ return !FIXED_DAY[day]; }
+function isoDate(d){ const x=new Date(d); x.setHours(0,0,0,0); return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0"); }
+/* An idea's slot resolves to a specific date. New slots store `date`; legacy
+   items that only have a weekday (`day`) map onto the current week's matching day. */
+function slotDate(x){
+  if(x.date) return x.date;
+  if(x.day){ const i=DAYS.indexOf(x.day); if(i>=0){ const mon=mondayOf(new Date()); const dt=new Date(mon); dt.setDate(mon.getDate()+i); return isoDate(dt); } }
+  return null;
+}
+function weekLabel(w, mon){ return w===0?"This week":w===1?"Next week":"In "+w+" weeks"; }
+function slotOptions(){
+  const baseMon=mondayOf(new Date()); let html='<option value="">Slot to day&hellip;</option>';
+  for(let w=0;w<WEEKS_SHOWN;w++){
+    const mon=new Date(baseMon); mon.setDate(baseMon.getDate()+7*w);
+    html+=`<optgroup label="${weekLabel(w,mon)}">`;
+    DAYS.forEach((d,i)=>{ const dt=new Date(mon); dt.setDate(mon.getDate()+i); const iso=isoDate(dt);
+      html+=`<option value="${iso}">${d} ${fmt(dt)} &middot; ${dayPillar(d,mon)}</option>`; });
+    html+='</optgroup>';
+  }
+  return html;
+}
+const STATUSES = ["idea","in progress","drafted","finishing","posted"];
+function pillClass(s){ return "statuspill "+String(s||"").replace(/\s+/g,"-"); }
+// Has this idea actually been drafted? (a Google Doc exists, or it's past the idea stage with real text)
+function hasRealDraft(x){ return !!(x.docUrl || (x.draft && x.status!=="idea" && x.status!=="in progress")); }
+
+let state = load();
+let filter = "all";
+
+function load(){
+  try{ const s=JSON.parse(localStorage.getItem(STORE_KEY)); if(s&&s.ideas) return s; }catch(e){}
+  return { ideas:[], seenFiles:[] };
+}
+function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+function uid(){ return "i"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function pillarColor(p){ return (PILLARS[p]||{}).color || "var(--muted)"; }
+function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1900); }
+
+function mondayOf(d){ const x=new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x; }
+function fmt(d){ return d.toLocaleDateString(undefined,{month:"short",day:"numeric"}); }
+
+/* ---------- Local file sync ---------- */
+/* Reads data/ideas.json (the canonical file Claude Code edits). Merges any new
+   items into localStorage by srcId; your edits/status/day in the browser win. */
+async function syncFile(){
+  const el=document.getElementById("feederStatus");
+  try{
+    const res = await fetch(DATA_URL, {cache:"no-store"});
+    if(!res.ok) throw new Error("http "+res.status);
+    const data = await res.json();
+    const ideas = (data.ideas)||[];
+    let added=0, updated=0;
+    for(const it of ideas){
+      const srcId = it.id||null;
+      let local = srcId ? state.ideas.find(x=>x.srcId===srcId) : null;
+      // Heal orphaned items from earlier reloads: a local item with no srcId whose hook
+      // matches this file item adopts its srcId (instead of getting duplicated).
+      if(!local && srcId){
+        const orphan = state.ideas.find(x=>!x.srcId && x.hook && it.hook && x.hook.trim().toLowerCase()===it.hook.trim().toLowerCase());
+        if(orphan){ orphan.srcId=srcId; local=orphan; }
+      }
+      if(local){
+        // Non-destructive refresh: surface a draft written to the file (e.g. by the
+        // weekly-draft scheduled task), but NEVER overwrite an item you've already
+        // advanced to finishing/posted — your in-browser edits always win.
+        if(local.status!=="finishing" && local.status!=="posted" && it.draft && it.draft!==local.draft){
+          local.draft = it.draft;
+          if(it.type) local.type = it.type;
+          if(local.status==="idea") local.status = (it.status && it.status!=="idea") ? it.status : "drafted";
+          if(!local.day && it.day) local.day = it.day;
+          if(!local.date && it.date) local.date = it.date;
+          if(!local.draftNotes && it.draftNotes) local.draftNotes = it.draftNotes;
+          if(it.suggestedPic && JSON.stringify(it.suggestedPic)!==JSON.stringify(local.suggestedPic)){ local.suggestedPic = it.suggestedPic; }
+          updated++;
+        }
+        if(it.suggestedPic && !local.suggestedPic){ local.suggestedPic = it.suggestedPic; if(!updated) updated++; }
+        // Surface a Google Doc link written to the file, even if the draft text didn't change.
+        if(it.docUrl && it.docUrl!==local.docUrl && local.status!=="posted"){ local.docUrl=it.docUrl; local.docId=it.docId||local.docId; if(!updated) updated++; }
+        // Adopt authoritative task state from the file (status/slot/pillar are written through by
+        // the dashboard, the sweeper, or a server-side change) so it persists across reloads.
+        if(it.status && it.status!==local.status){ local.status=it.status; if(!updated) updated++; }
+        if(("day" in it) && (it.day||null)!==(local.day||null)) local.day=it.day||null;
+        if(("date" in it) && (it.date||null)!==(local.date||null)) local.date=it.date||null;
+        if(it.pillar && it.pillar!==local.pillar) local.pillar=it.pillar;
+        continue;
+      }
+      state.ideas.push({
+        id:uid(), srcId:srcId,
+        hook:it.hook||it.text||"(untitled)",
+        note:it.note||"", pillar:normalizePillar(it.pillar),
+        source:it.source||it.inspiredBy||"file",
+        status:it.status||"idea", draft:it.draft||"", type:it.type||"",
+        day:it.day||null, date:it.date||null, docId:it.docId||null, docUrl:it.docUrl||null, draftNotes:it.draftNotes||"", suggestedPic:it.suggestedPic||null, sourceUrl:it.sourceUrl||"", createdAt:it.createdAt||Date.now()
+      });
+      added++;
+    }
+    if(added>0||updated>0){ save(); render(); }
+    el.textContent = ideas.length+" in file · "+added+" new · "+updated+" updated";
+  }catch(e){
+    el.textContent = "Couldn't read data/ideas.json — serve this folder over http (see README)";
+  }
+}
+/* Export current board back to ideas.json (download), so you/Claude Code can save it. */
+function exportIdeas(){
+  const out = { ideas: state.ideas.map(x=>({id:x.srcId||x.id, pillar:x.pillar, hook:x.hook, note:x.note, source:x.source, status:x.status, draft:x.draft, type:x.type, day:x.day, date:x.date||null, docId:x.docId||null, docUrl:x.docUrl||null, draftNotes:x.draftNotes||"", suggestedPic:x.suggestedPic||null, sourceUrl:x.sourceUrl||"", createdAt:x.createdAt})) };
+  const blob = new Blob([JSON.stringify(out,null,2)], {type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="ideas.json"; a.click();
+  toast("Exported ideas.json — save it into data/");
+}
+function normalizePillar(p){
+  if(!p) return "Workplace";
+  const k=Object.keys(PILLARS).find(x=>x.toLowerCase()===String(p).toLowerCase());
+  return k||"Workplace";
+}
+
+/* ---------- Rendering ---------- */
+function renderLegend(){
+  const wrap=document.getElementById("legend");
+  wrap.innerHTML=Object.entries(PILLARS).map(([p,v])=>
+    `<span class="chip"><span class="dot" style="background:${v.color}"></span>${p} <span style="color:var(--muted);font-weight:400">· ${v.desc}</span></span>`
+  ).join("");
+  const sel=document.getElementById("newPillar");
+  sel.innerHTML=Object.keys(PILLARS).map(p=>`<option value="${p}">${p}</option>`).join("");
+}
+function renderWeek(){
+  const baseMon=mondayOf(new Date());
+  const lastFri=new Date(baseMon); lastFri.setDate(baseMon.getDate()+7*(WEEKS_SHOWN-1)+4);
+  document.getElementById("weekLabel").textContent="Weeks of "+fmt(baseMon)+" – "+fmt(lastFri);
+  const wrap=document.getElementById("week");
+  let html="";
+  for(let w=0; w<WEEKS_SHOWN; w++){
+    const mon=new Date(baseMon); mon.setDate(baseMon.getDate()+7*w);
+    const days=DAYS.map((d,i)=>{
+      const dt=new Date(mon); dt.setDate(mon.getDate()+i);
+      const iso=isoDate(dt);
+      const p=dayPillar(d, mon);
+      const items=state.ideas.filter(x=>slotDate(x)===iso && x.status!=="posted");
+      const cards = items.length ? items.map(x=>slotCard(x)).join("") : `<div class="empty-slot">No post slotted</div>`;
+      return `<div class="day">
+        <div class="day-h" style="border-top:3px solid ${pillarColor(p)}">
+          <div class="d">${d} <span style="color:var(--muted);font-weight:500">${fmt(dt)}</span></div>
+          <div class="p" style="color:${pillarColor(p)}">${p}${isRotating(d)?' <span style="font-weight:500;opacity:.65">· rotates</span>':''}</div>
+          <div class="note" style="font-size:11px;color:var(--muted)">${DAY_TYPE[d]}</div>
+        </div>
+        <div class="day-body">${cards}</div>
+      </div>`;
+    }).join("");
+    html+=`<div class="weekblock${w>0?' ahead':''}">
+      <div class="weekblock-h">${weekLabel(w,mon)} <span class="sub">${fmt(mon)}</span></div>
+      <div class="weekgrid">${days}</div>
+    </div>`;
+  }
+  wrap.innerHTML=html;
+}
+function slotCard(x){
+  return `<div class="slotcard" style="border-left-color:${pillarColor(x.pillar)}">
+    <div class="hook">${esc(x.hook)}</div>
+    ${x.note?`<div class="note">${esc(x.note)}</div>`:""}
+    ${draftBox(x)}
+    <div class="row">
+      <span class="${pillClass(x.status)}">${x.status}</span>
+      <select class="mini" onchange="setStatus('${x.id}',this.value)">${STATUSES.map(s=>`<option ${s===x.status?"selected":""}>${s}</option>`).join("")}</select>
+      <button class="ghost mini" onclick="unassign('${x.id}')">↩ bank</button>
+    </div>
+  </div>`;
+}
+function notesBox(x){
+  const has = (x.draftNotes||"").trim().length>0;
+  return `<details class="notesbox"${has?" open":""}>
+    <summary>📝 Notes for drafting${has?` <span class="filled">· saved</span>`:""}</summary>
+    <textarea class="notesinput" placeholder="Add facts, real Fame numbers, the specific story, the angle you want — Claude uses this when drafting this post." onblur="saveNotes('${x.id}',this.value)">${esc(x.draftNotes||"")}</textarea>
+  </details>`;
+}
+function picBox(x){
+  const p=x.suggestedPic; if(!p||!p.id) return "";
+  const url=p.url||("https://drive.google.com/file/d/"+p.id+"/view");
+  const thumb="https://drive.google.com/thumbnail?id="+p.id+"&sz=w400";
+  return `<div class="picbox">
+    <a href="${url}" target="_blank" rel="noopener"><img src="${thumb}" alt="suggested photo" loading="lazy"></a>
+    <div class="picmeta">
+      <div class="why">📷 ${esc(p.reason||"Suggested photo")}</div>
+      <div>${esc(p.name||"")}</div>
+      <div class="picrow">
+        <a class="mini doclink" href="https://drive.google.com/uc?export=download&id=${p.id}" target="_blank" rel="noopener">⬇ Download image</a>
+        <a class="mini doclink" href="${url}" target="_blank" rel="noopener">Open in Drive</a>
+        <button class="mini" onclick="suggestPic('${x.id}')">↻ Suggest another</button>
+      </div>
+    </div>
+  </div>`;
+}
+function draftBox(x){
+  if(x.docUrl) return `<div class="draftactions" style="margin:6px 0"><a class="mini doclink" href="${x.docUrl}" target="_blank" rel="noopener">📄 Open Google Doc${x.type?" · "+esc(x.type):""}</a>${x.draft?`<button class="mini" onclick="copyDraft('${x.id}')">📋 Copy for LinkedIn</button>`:""}</div>`;
+  // Reposts have no Doc - they re-share the original post. Link to it instead.
+  if(x.pillar==="Repost" || x.type==="Repost"){
+    const m=(x.draft||"").match(/https?:\/\/\S+/);
+    if(m) return `<div class="draftactions" style="margin:6px 0"><a class="mini doclink" href="${m[0]}" target="_blank" rel="noopener">🔗 Re-share original</a></div>`;
+  }
+  return "";
+}
+function renderFilters(){
+  const wrap=document.getElementById("filters");
+  const opts=["all",...Object.keys(PILLARS),"posted"];
+  wrap.innerHTML=opts.map(o=>`<button class="${filter===o?"active":""}" onclick="setFilter('${o}')">${o[0].toUpperCase()+o.slice(1)}</button>`).join("");
+}
+function renderIdeas(){
+  const list=document.getElementById("ideaList");
+  let items=state.ideas.filter(x=>slotDate(x)===null || x.status==="posted");
+  if(filter==="posted") items=state.ideas.filter(x=>x.status==="posted");
+  else if(filter!=="all") items=items.filter(x=>x.pillar===filter);
+  items.sort((a,b)=>b.createdAt-a.createdAt);
+  document.getElementById("bankCount").textContent=state.ideas.length+" total · "+state.ideas.filter(x=>slotDate(x)===null&&x.status!=="posted").length+" unslotted";
+  if(!items.length){ list.innerHTML=`<div class="empty">No ideas here yet. Add one above, or the feeder will drop some in.</div>`; return; }
+  list.innerHTML=items.map(x=>`
+    <div class="idea" data-id="${x.id}">
+      <span class="pill-tag" style="background:${pillarColor(x.pillar)}">${x.pillar}</span>
+      <div class="body">
+        <div class="hook">${esc(x.hook)}</div>
+        ${(x.source||"").toLowerCase().includes("draft of the day")?`<div style="margin:3px 0"><span class="daily-badge">☀️ Draft of the day · auto-written by the daily scan</span></div>`:""}
+        <div class="meta"><span class="${pillClass(x.status)}">${x.status}</span> ${x.note?esc(x.note)+" · ":""}${esc(x.source||"manual")}${x.status==="posted"?" · ✓ posted":""}</div>
+        ${x.sourceUrl?`<div style="margin:5px 0"><a class="mini doclink" href="${x.sourceUrl}" target="_blank" rel="noopener">🔗 Review original post</a></div>`:""}
+        ${notesBox(x)}
+        ${draftBox(x)}
+        ${picBox(x)}
+        <div class="controls">
+          <select class="mini" onchange="setStatus('${x.id}',this.value)" title="Status">${STATUSES.map(s=>`<option ${s===x.status?"selected":""}>${s}</option>`).join("")}</select>
+          <select class="mini" onchange="setPillar('${x.id}',this.value)">${Object.keys(PILLARS).map(p=>`<option ${p===x.pillar?"selected":""}>${p}</option>`).join("")}</select>
+          <select class="mini" onchange="assign('${x.id}',this.value)">${slotOptions()}</select>
+          <button class="mini" onclick="draftOne('${x.id}')">${hasRealDraft(x)?"✍️ Re-draft":"✍️ Draft"}</button>
+          <button class="mini" onclick="suggestPic('${x.id}')">📷 Suggest pic</button>
+          <button class="ghost mini" onclick="del('${x.id}')">Delete</button>
+        </div>
+      </div>
+    </div>`).join("");
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function render(){ renderWeek(); renderIdeas(); renderFilters(); }
+
+/* ---------- Actions ---------- */
+window.setFilter=f=>{ filter=f; renderFilters(); renderIdeas(); };
+/* Write task state (status/slot/pillar) through to the shared file so it persists everywhere. */
+function persistItem(x){
+  fetch("/api/update-item",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({items:[{srcId:x.srcId||null,hook:x.hook,pillar:x.pillar,status:x.status,day:x.day,date:x.date}]})}).catch(()=>{});
+}
+window.setStatus=(id,v)=>{ const x=state.ideas.find(i=>i.id===id); if(x){x.status=v; save(); persistItem(x); render();} };
+window.setPillar=(id,v)=>{ const x=state.ideas.find(i=>i.id===id); if(x){x.pillar=v; save(); persistItem(x); render();} };
+window.assign=(id,iso)=>{ if(!iso)return; const x=state.ideas.find(i=>i.id===id); if(!x)return;
+  const dt=new Date(iso+"T00:00:00"); const wd=DAYS[(dt.getDay()+6)%7];
+  x.date=iso; x.day=wd; save(); persistItem(x); render(); toast("Slotted to "+wd+" "+fmt(dt)); };
+window.unassign=id=>{ const x=state.ideas.find(i=>i.id===id); if(x){x.day=null; x.date=null; save(); persistItem(x); render();} };
+window.del=id=>{
+  const x=state.ideas.find(i=>i.id===id);
+  state.ideas=state.ideas.filter(i=>i.id!==id); save(); render();
+  // Also remove from the shared file, or syncFile re-adds it on the next reload.
+  if(x) fetch("/api/delete-idea",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ids:[x.srcId].filter(Boolean),hooks:[x.hook]})}).catch(()=>{});
+};
+window.suggestPic=(id)=>{
+  const x=state.ideas.find(i=>i.id===id); if(!x) return;
+  fetch("/api/suggest-pic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({items:[{srcId:x.srcId||null,hook:x.hook,pillar:x.pillar,draft:x.draft,draftNotes:x.draftNotes}]})})
+    .then(r=>r.json()).then(d=>{ toast(d&&d.ok&&((d.queued||0)+(d.added||0))>0?"Finding a photo 📷 — reload in a few minutes":"Requested"); })
+    .catch(()=>toast("Couldn't reach server"));
+};
+window.saveNotes=(id,val)=>{
+  const x=state.ideas.find(i=>i.id===id); if(!x) return;
+  if((x.draftNotes||"")===(val||"")) return; // no change on blur
+  x.draftNotes=val; save(); // persist to browser immediately
+  // persist to the shared file so the writer/sweeper see it (upserts if not in file yet)
+  fetch("/api/update-note",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({items:[{srcId:x.srcId||null,hook:x.hook,pillar:x.pillar,draftNotes:val}]})})
+    .then(r=>r.json()).then(d=>{ toast(d&&d.ok?"Notes saved ✓":"Notes saved locally"); })
+    .catch(()=>toast("Notes saved locally (server offline)"));
+};
+window.copyDraft=id=>{ const x=state.ideas.find(i=>i.id===id); if(!x||!x.draft)return; const done=()=>toast("Draft copied — paste into LinkedIn"); if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(x.draft).then(done).catch(()=>fallbackCopy(x.draft,done));} else fallbackCopy(x.draft,done); };
+function fallbackCopy(t,cb){ const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");cb();}catch(e){} document.body.removeChild(ta); }
+document.getElementById("addBtn").onclick=()=>{
+  const hookEl=document.getElementById("newHook");
+  const h=hookEl.value.trim();
+  if(!h){
+    hookEl.classList.add("needsinput"); hookEl.focus();
+    setTimeout(()=>hookEl.classList.remove("needsinput"),1400);
+    toast("Type a hook first, then Add idea");
+    return;
+  }
+  const p=document.getElementById("newPillar").value;
+  const n=document.getElementById("newNote").value.trim();
+  const newId=uid();
+  state.ideas.push({id:newId,srcId:null,hook:h,note:n,pillar:p,source:"manual",status:"idea",draft:"",type:"",day:null,date:null,draftNotes:"",createdAt:Date.now()});
+  hookEl.value=""; document.getElementById("newNote").value="";
+  // If a pillar filter is active that would hide the new idea, switch to "All" so it's visible.
+  if(filter!=="all" && filter!==p) filter="all";
+  save(); render();
+  // Scroll to and briefly highlight the newly added idea.
+  const el=document.querySelector('#ideaList .idea[data-id="'+newId+'"]');
+  if(el){ el.classList.add("justadded"); el.scrollIntoView({behavior:"smooth",block:"center"}); }
+  toast("Idea added to the bank");
+};
+document.getElementById("newHook").addEventListener("keydown",e=>{ if(e.key==="Enter") document.getElementById("addBtn").click(); });
+
+function draftPrompt(items){
+  let p="Draft LinkedIn post(s) in my voice. Use my voice guide (voice-guide.md in the outputs folder / Drive 'LinkedIn Content System' folder) — short contrarian hook, one idea per line, real Fame numbers, dry and self-deprecating, no hashtags. I will finish and post manually.\n\n";
+  items.forEach(x=>{
+    const day=x.day?(x.day+" — "):"";
+    p+=`• ${day}[${x.pillar}] ${x.hook}${x.note?" — "+x.note:""}\n`;
+    if((x.draftNotes||"").trim()) p+=`   Notes for drafting (Tom's context — use these): ${x.draftNotes.trim()}\n`;
+  });
+  p+="\nGive me each as a ready-to-edit draft, and mark them 'drafted' in the dashboard when done.";
+  return p;
+}
+/* Ask Claude Code to draft the given items. Items that exist in data/ideas.json
+   (have a srcId) are flagged server-side via /api/draft-request so Claude can
+   pick them up in-tool. Browser-only ideas (no srcId) fall back to copying a
+   ready prompt to the clipboard so you can paste it to Claude. */
+function requestDraft(items){
+  if(!items.length) return;
+  const payload={items:items.map(x=>({srcId:x.srcId||null,hook:x.hook,note:x.note,pillar:x.pillar,draft:x.draft,type:x.type,day:x.day,date:x.date}))};
+  fetch("/api/draft-request",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
+    .then(r=>r.json())
+    .then(d=>{
+      if(d&&d.ok&&((d.queued||0)+(d.added||0))>0){ toast("Queued ✍️ — Claude will draft this automatically. Reload in a few minutes."); }
+      else { copyPromptFallback(items); }
+    })
+    .catch(()=>copyPromptFallback(items));
+}
+function copyPromptFallback(items){
+  const text=draftPrompt(items);
+  const done=()=>toast("Draft prompt copied — paste it to Claude in this tool");
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done)); }
+  else fallbackCopy(text,done);
+}
+window.draftOne=id=>{
+  const x=state.ideas.find(i=>i.id===id); if(!x)return;
+  requestDraft([x]);
+};
+
+/* ---------- Boot ---------- */
+/* ---------- Creators tab ---------- */
+let creators = [];
+let inspiration = [];
+const VIEWS = ["content","inspiration","creators"];
+window.showTab=(name)=>{
+  VIEWS.forEach(v=>{
+    document.getElementById("view-"+v).style.display = (v===name)?"":"none";
+    document.getElementById("tab-"+v).classList.toggle("active", v===name);
+  });
+  if(name==="creators") renderCreators();
+  if(name==="inspiration") renderInspiration();
+};
+function loadInspiration(){
+  fetch("../data/inspiration.json",{cache:"no-store"}).then(r=>r.json())
+    .then(d=>{ inspiration = d.posts||[]; }).catch(()=>{ inspiration=[]; });
+}
+function renderInspiration(){
+  loadInspiration(); // refresh from file each time the tab opens
+  setTimeout(()=>{
+    const open = inspiration.filter(p=>!p.added);
+    document.getElementById("view-inspiration").innerHTML=`
+      <div class="section-h"><h2>Inspiration from the daily scan</h2><span class="feeder">${open.length} to review &middot; ${inspiration.length-open.length} added</span></div>
+      <div class="hint" style="margin:-4px 0 12px">Posts the morning scan surfaced. Review one, then <b>Add to bank</b> to turn it into an idea you can draft in your voice.</div>
+      <div class="bank"><div id="inspList"></div></div>`;
+    renderInspList();
+  }, 120);
+}
+function renderInspList(){
+  const list=document.getElementById("inspList"); if(!list) return;
+  // Once a post is in the bank (added manually or turned into the draft of the day), drop it from here.
+  const posts=inspiration.filter(p=>!p.added);
+  list.innerHTML = posts.length ? posts.map(p=>`
+    <div class="idea">
+      <span class="pill-tag" style="background:${pillarColor(p.pillar)}">${esc(p.pillar||"?")}</span>
+      <div class="body">
+        <div class="hook">${esc(p.author||"Unknown")} ${p.likes!=null?`<span style="font-weight:600;color:var(--muted)">&middot; ❤ ${Number(p.likes).toLocaleString()}</span>`:""}</div>
+        <div class="meta">${esc((p.text||"").slice(0,240))}${(p.text||"").length>240?"…":""}</div>
+        <div class="controls">
+          <a class="mini doclink" href="${p.url||"#"}" target="_blank" rel="noopener">🔗 View post</a>
+          <button class="mini primary" onclick="addInspiration('${p.id}')">＋ Add to bank</button>
+        </div>
+      </div>
+    </div>`).join("") : `<div class="empty">All caught up - nothing new to review. The daily scan drops fresh posts here each morning.</div>`;
+}
+window.addInspiration=(id)=>{
+  const p=inspiration.find(x=>x.id===id); if(!p) return;
+  fetch("/api/inspiration-add",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})})
+    .then(r=>r.json()).then(d=>{
+      if(d&&d.ok){ p.added=true; renderInspList(); syncFile(); toast("Added to your bank - draft it from the Content tab"); }
+      else toast("Couldn't add - "+((d&&d.error)||"try again"));
+    }).catch(()=>toast("Couldn't reach server"));
+};
+function loadCreators(){
+  fetch("../data/creators.json",{cache:"no-store"}).then(r=>r.json())
+    .then(d=>{ creators = d.creators||[]; }).catch(()=>{ creators=[]; });
+}
+function renderCreators(){
+  const active=creators.filter(c=>c.active!==false).length;
+  document.getElementById("view-creators").innerHTML=`
+    <div class="section-h"><h2>Creators the daily scan watches</h2><span class="feeder">${creators.length} creators &middot; ${active} active</span></div>
+    <div class="hint" style="margin:-4px 0 12px">The morning feeder scans each ACTIVE creator's recent posts for inspiration. Pause anyone you don't want it to watch, or add new people.</div>
+    <div class="bank">
+      <div class="addrow">
+        <input class="hookin" id="newCreatorHandle" placeholder="LinkedIn handle or profile URL…">
+        <input id="newCreatorName" placeholder="Name" style="min-width:120px">
+        <input id="newCreatorFocus" placeholder="Focus (e.g. Hiring)" style="min-width:120px">
+        <button class="primary" onclick="addCreator()">Add creator</button>
+      </div>
+      <div id="creatorList"></div>
+    </div>`;
+  renderCreatorList();
+}
+function renderCreatorList(){
+  const list=document.getElementById("creatorList"); if(!list) return;
+  list.innerHTML=creators.map(c=>{
+    const on=c.active!==false;
+    return `<div class="idea">
+      <span class="pill-tag" style="background:${on?"var(--business)":"#9aa5ad"}">${on?"ACTIVE":"PAUSED"}</span>
+      <div class="body">
+        <div class="hook">${esc(c.name||c.handle)} ${c.focus?`<span style="font-weight:400;color:var(--muted)">&middot; ${esc(c.focus)}</span>`:""}</div>
+        <div class="meta"><a href="https://www.linkedin.com/in/${encodeURIComponent(c.handle)}/recent-activity/all/" target="_blank" rel="noopener">/in/${esc(c.handle)}</a></div>
+        <div class="controls">
+          <button class="mini" onclick="toggleCreator('${esc(c.handle)}')">${on?"⏸ Pause":"▶ Activate"}</button>
+          <button class="ghost mini" onclick="delCreator('${esc(c.handle)}')">Remove</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("")||`<div class="empty">No creators yet. Add one above.</div>`;
+}
+function saveCreators(){
+  fetch("/api/save-creators",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({creators})})
+    .then(r=>r.json()).then(d=>{ toast(d&&d.ok?"Creators saved ✓":"Saved locally"); }).catch(()=>toast("Saved locally (server offline)"));
+}
+window.toggleCreator=(h)=>{ const c=creators.find(c=>c.handle===h); if(c){ c.active=(c.active===false); renderCreatorList(); saveCreators(); } };
+window.delCreator=(h)=>{ creators=creators.filter(c=>c.handle!==h); renderCreatorList(); saveCreators(); };
+window.addCreator=()=>{
+  let h=document.getElementById("newCreatorHandle").value.trim();
+  h=h.replace(/^.*\/in\//,"").replace(/[/?].*$/,"").trim(); // accept a full URL or a bare handle
+  if(!h){ toast("Enter a LinkedIn handle"); return; }
+  if(creators.some(c=>c.handle.toLowerCase()===h.toLowerCase())){ toast("Already in the list"); return; }
+  const name=document.getElementById("newCreatorName").value.trim();
+  const focus=document.getElementById("newCreatorFocus").value.trim();
+  creators.push({handle:h, name:name||h, focus:focus, active:true});
+  renderCreators(); saveCreators(); toast("Creator added");
+};
+
+/* ---------- Boot ---------- */
+loadCreators(); loadInspiration(); renderLegend(); render(); syncFile();
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+.fame-helper-holder { margin: 6px 0 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.fame-helper-holder.profile { margin: 10px 0; }
+.fame-helper-select {
+  border: 1px solid #d0c9c2;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #292a25;
+  background: #fff;
+  cursor: pointer;
+}
+.fame-helper-btn {
+  background: #ff467c;           /* Fame pink */
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 13px;
+  font-weight: 700;
+  font-size: 12.5px;
+  line-height: 1;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 1px 3px rgba(0,0,0,.18);
+}
+.fame-helper-btn:hover { background: #e23e6f; }
+.fame-helper-btn:disabled { opacity: .75; cursor: default; }
+.fame-helper-btn.profile { background: #292a25; }  /* Our Black for the profile action */
+#fame-helper-toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #292a25;
+  color: #fff;
+  padding: 11px 20px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  z-index: 99999;
+  opacity: 0;
+  transition: opacity .2s;
+  pointer-events: none;
+  box-shadow: 0 4px 14px rgba(0,0,0,.25);
+}
+#fame-helper-toast.show { opacity: 1; }
+#fame-helper-toast.err { background: #b91c1c; }
