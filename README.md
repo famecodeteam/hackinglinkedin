@@ -6,6 +6,14 @@ Built by [Tom Hunt](https://tomhunt.io), founder & CEO of [Fame](https://fame.so
 
 > **The pitch:** three years ago this was a $20-50k custom build or an expensive SaaS subscription. Now it's a weekend, some evenings, and an AI that writes in your voice.
 
+### 🎧 Start here - the theory behind the system
+
+This tool automates a specific content strategy. The full thinking - *why* it works, not just how - is laid out in this episode:
+
+## ▶️ **[LinkedIn Growth Hacks You Need in 2025 - Tom Hunt (UnF*ck My Startup)](https://pod.tomhunt.io/e/2nx0v6yn-tom-hunt-unf-ck-my-startup)**
+
+Watch/listen to that first. Everything below is just the machinery that executes it.
+
 ![The Hacking LinkedIn dashboard - a terminal-themed weekly content board](docs/screenshot.png)
 
 ---
