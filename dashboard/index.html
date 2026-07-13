@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hacking LinkedIn</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4Ij48cmVjdCB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgcng9IjI2IiBmaWxsPSIjMDgwYTA5Ii8+PGcgZmlsbD0iIzM3ZDk4YSI+PHJlY3QgeD0iMzQiIHk9IjMwIiB3aWR0aD0iMTYiIGhlaWdodD0iNjgiIHJ4PSIzIi8+PHJlY3QgeD0iNzgiIHk9IjMwIiB3aWR0aD0iMTYiIGhlaWdodD0iNjgiIHJ4PSIzIi8+PHJlY3QgeD0iMzQiIHk9IjU2IiB3aWR0aD0iNjAiIGhlaWdodD0iMTYiIHJ4PSIzIi8+PC9nPjwvc3ZnPg==">
 <style>
 :root{
   color-scheme: dark;
@@ -61,7 +62,12 @@ h1 .cursor{display:inline-block;width:.5em;height:.95em;background:var(--green-b
 .day-h .d{font-weight:700;font-size:12px;color:var(--ink);}
 .day-h .p{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
 .day-body{padding:10px;display:flex;flex-direction:column;gap:8px;flex:1;}
-.slotcard{border:1px solid var(--line2);border-left:3px solid var(--muted);border-radius:6px;padding:9px;background:var(--card2);font-size:12px;}
+.slotcard{border:1px solid var(--line2);border-left:3px solid var(--muted);border-radius:6px;padding:9px;background:var(--card2);font-size:12px;cursor:grab;}
+.slotcard:active{cursor:grabbing;}
+.slotcard.dragging{opacity:.4;}
+.slotcard .grip{color:var(--muted);font-size:12px;line-height:1;letter-spacing:2px;opacity:.45;margin-bottom:3px;user-select:none;}
+.day.dragover{outline:2px dashed var(--green);outline-offset:-4px;background:rgba(55,217,138,.07);}
+.day.dragover .empty-slot{border-color:var(--green);color:var(--green);opacity:1;}
 .slotcard .hook{font-weight:600;line-height:1.35;color:var(--ink);}
 .slotcard .note{color:var(--muted);font-size:11px;margin-top:3px;}
 .slotcard .row{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap;}
@@ -377,7 +383,7 @@ function renderWeek(){
       const p=dayPillar(d, mon);
       const items=state.ideas.filter(x=>slotDate(x)===iso && x.status!=="posted");
       const cards = items.length ? items.map(x=>slotCard(x)).join("") : `<div class="empty-slot">No post slotted</div>`;
-      return `<div class="day">
+      return `<div class="day" data-date="${iso}" ondragover="dayDragOver(event)" ondragleave="dayDragLeave(event)" ondrop="dayDrop(event)">
         <div class="day-h" style="border-top:3px solid ${pillarColor(p)}">
           <div class="d">${d} <span style="color:var(--muted);font-weight:500">${fmt(dt)}</span></div>
           <div class="p" style="color:${pillarColor(p)}">${p}${isRotating(d)?' <span style="font-weight:500;opacity:.65">· rotates</span>':''}</div>
@@ -394,7 +400,8 @@ function renderWeek(){
   wrap.innerHTML=html;
 }
 function slotCard(x){
-  return `<div class="slotcard" style="border-left-color:${pillarColor(x.pillar)}">
+  return `<div class="slotcard" draggable="true" ondragstart="cardDragStart(event,'${x.id}')" ondragend="cardDragEnd(event)" style="border-left-color:${pillarColor(x.pillar)}">
+    <div class="grip" title="Drag to another day">⠿⠿</div>
     <div class="hook">${esc(x.hook)}</div>
     ${x.note?`<div class="note">${esc(x.note)}</div>`:""}
     ${pendingBox(x)}
@@ -502,6 +509,25 @@ window.assign=(id,iso)=>{ if(!iso)return; const x=state.ideas.find(i=>i.id===id)
   const dt=new Date(iso+"T00:00:00"); const wd=DAYS[(dt.getDay()+6)%7];
   x.date=iso; x.day=wd; save(); persistItem(x); render(); toast("Slotted to "+wd+" "+fmt(dt)); };
 window.unassign=id=>{ const x=state.ideas.find(i=>i.id===id); if(x){x.day=null; x.date=null; save(); persistItem(x); render();} };
+/* ---------- Drag a slotted post to another day ---------- */
+let _dragId=null;
+window.cardDragStart=(e,id)=>{
+  if(e.target.closest && e.target.closest("select,button,a,input,textarea,option,details,summary")){ e.preventDefault(); return; }
+  _dragId=id; try{ e.dataTransfer.effectAllowed="move"; e.dataTransfer.setData("text/plain",id); }catch(_){}
+  const card=e.currentTarget; requestAnimationFrame(()=>card.classList.add("dragging"));
+};
+window.cardDragEnd=(e)=>{ e.currentTarget.classList.remove("dragging"); document.querySelectorAll(".day.dragover").forEach(d=>d.classList.remove("dragover")); _dragId=null; };
+window.dayDragOver=(e)=>{ if(_dragId===null) return; e.preventDefault(); try{e.dataTransfer.dropEffect="move";}catch(_){} e.currentTarget.classList.add("dragover"); };
+window.dayDragLeave=(e)=>{ if(!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove("dragover"); };
+window.dayDrop=(e)=>{
+  e.preventDefault();
+  const day=e.currentTarget; day.classList.remove("dragover");
+  const iso=day.dataset.date; const id=_dragId||(e.dataTransfer&&e.dataTransfer.getData("text/plain")); _dragId=null;
+  if(!id||!iso) return;
+  const x=state.ideas.find(i=>i.id===id); if(!x) return;
+  if(slotDate(x)===iso) return;
+  assign(id,iso);
+};
 window.del=id=>{
   const x=state.ideas.find(i=>i.id===id);
   state.ideas=state.ideas.filter(i=>i.id!==id); save(); render();
