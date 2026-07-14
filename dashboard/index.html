@@ -631,9 +631,16 @@ window.showTab=(name)=>{
     document.getElementById("view-"+v).style.display = (v===name)?"":"none";
     document.getElementById("tab-"+v).classList.toggle("active", v===name);
   });
+  // Remember which tab you're on, so a refresh (or a bookmark) keeps you here.
+  try{ history.replaceState(null,"","#"+name); }catch(_){}
   if(name==="creators") renderCreators();
   if(name==="inspiration") renderInspiration();
 };
+// Restore the tab from the URL on load (defaults to content).
+function restoreTab(){
+  const h=(location.hash||"").replace(/^#/,"");
+  showTab(VIEWS.includes(h) ? h : "content");
+}
 function loadInspiration(){
   fetch("../data/inspiration.json",{cache:"no-store"}).then(r=>r.json())
     .then(d=>{ inspiration = d.posts||[]; }).catch(()=>{ inspiration=[]; });
@@ -744,7 +751,9 @@ window.addCreator=()=>{
 })();
 
 /* ---------- Boot ---------- */
-loadCreators(); loadInspiration(); renderLegend(); render(); syncFile();
+loadCreators(); loadInspiration(); renderLegend(); render(); syncFile(); restoreTab();
+// Keep tabs in sync if you use the browser back/forward buttons.
+window.addEventListener("hashchange", restoreTab);
 </script>
 </body>
 </html>
