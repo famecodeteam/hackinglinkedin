@@ -691,6 +691,11 @@ function renderInspList(){
       <div class="body">
         <div class="hook">${esc(p.author||"Unknown")} ${p.likes!=null?`<span style="font-weight:600;color:var(--muted)">&middot; ❤ ${Number(p.likes).toLocaleString()}</span>`:""}</div>
         <div class="meta">${esc((p.text||"").slice(0,240))}${(p.text||"").length>240?"…":""}</div>
+        ${p.suggestedHook?`<div style="margin:7px 0">
+          <span class="daily-badge">💡 Your angle</span>
+          <div style="color:var(--ink);font-weight:600;margin-top:4px">${esc(p.suggestedHook)}</div>
+          ${p.suggestedNote?`<div class="meta">${esc(p.suggestedNote)}</div>`:""}
+        </div>`:""}
         <div class="controls">
           <a class="mini doclink" href="${p.url||"#"}" target="_blank" rel="noopener">🔗 View post</a>
           <button class="mini primary" onclick="addInspiration('${p.id}')">＋ Add to bank</button>

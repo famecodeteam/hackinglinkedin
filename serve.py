@@ -135,8 +135,11 @@ class Handler(SimpleHTTPRequestHandler):
             if not post:
                 return self._json(404, {"ok": False, "error": "post not found"})
             text = post.get("text") or ""
-            hook = (text.split("\n")[0] or text)[:90]
             author = post.get("author") or "someone on LinkedIn"
+            # The daily scan distils a polished, voice-matched hook for each post it surfaces.
+            # Prefer that - it's YOUR angle, not a copy of the original poster's opening line.
+            hook = (post.get("suggestedHook") or "").strip() or (text.split("\n")[0] or text)[:90]
+            note = (post.get("suggestedNote") or "").strip() or ("Inspiration - LinkedIn post by " + author)
             try:
                 with open(IDEAS) as f:
                     bank = json.load(f)
@@ -147,7 +150,7 @@ class Handler(SimpleHTTPRequestHandler):
                 nid = nid + "-2"
             bank["ideas"].append({
                 "id": nid, "pillar": post.get("pillar") or "Workplace",
-                "hook": hook, "note": "Inspiration - LinkedIn post by " + author,
+                "hook": hook, "note": note,
                 "source": "feeder", "status": "idea", "draft": "", "type": "",
                 "day": None, "date": None,
                 "draftNotes": "INSPIRATION POST by " + author + " that you saved. Write your OWN take on this theme in your voice (do not copy it):\n\n" + text,
