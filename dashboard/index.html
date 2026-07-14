@@ -95,6 +95,10 @@ select option{background:var(--card);color:var(--ink);}
 .addrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
 .addrow input.hookin{flex:1;min-width:220px;}
 .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.searchrow{display:flex;gap:8px;align-items:center;margin-bottom:10px;}
+.searchin{flex:1;min-width:220px;}
+.searchin:focus{border-color:var(--green);}
+mark{background:rgba(245,196,81,.28);color:var(--amber);border-radius:2px;padding:0 1px;}
 .filters button{font-size:11px;padding:4px 10px;}
 .filters button.active{background:var(--green);border-color:var(--green);color:#05130c;font-weight:700;}
 .idea{display:flex;gap:12px;align-items:flex-start;padding:12px 6px;border-top:1px dashed var(--line);}
@@ -188,6 +192,11 @@ input.needsinput{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,92,122,.2
       <input id="newNote" placeholder="Optional note / angle" style="flex:1;min-width:160px">
       <button class="primary" id="addBtn">Add idea</button>
     </div>
+    <div class="searchrow">
+      <input id="bankSearch" class="searchin" placeholder="🔍 Search the bank — hook, note, source, draft, notes&hellip;" autocomplete="off">
+      <button class="ghost mini" id="clearSearch" style="display:none">✕ clear</button>
+      <span class="feeder" id="searchCount"></span>
+    </div>
     <div class="filters" id="filters"></div>
     <div id="ideaList"></div>
   </div>
@@ -273,6 +282,7 @@ function hasRealDraft(x){ return !!(x.docUrl || (x.draft && x.status!=="idea" &&
 
 let state = load();
 let filter = "all";
+let search = "";
 
 function load(){
   try{ const s=JSON.parse(localStorage.getItem(STORE_KEY)); if(s&&s.ideas) return s; }catch(e){}
@@ -462,14 +472,25 @@ function renderFilters(){
   const opts=["all",...Object.keys(PILLARS),"posted"];
   wrap.innerHTML=opts.map(o=>`<button class="${filter===o?"active":""}" onclick="setFilter('${o}')">${o[0].toUpperCase()+o.slice(1)}</button>`).join("");
 }
+/* Free-text search across everything useful on a card. */
+function matchesSearch(x){
+  if(!search) return true;
+  const hay=[x.hook,x.note,x.source,x.draft,x.draftNotes,x.pillar,x.status].filter(Boolean).join(" ").toLowerCase();
+  return search.toLowerCase().split(/\s+/).filter(Boolean).every(w=>hay.includes(w));
+}
 function renderIdeas(){
   const list=document.getElementById("ideaList");
   let items=state.ideas.filter(x=>slotDate(x)===null || x.status==="posted");
   if(filter==="posted") items=state.ideas.filter(x=>x.status==="posted");
   else if(filter!=="all") items=items.filter(x=>x.pillar===filter);
+  items=items.filter(matchesSearch);
   items.sort((a,b)=>b.createdAt-a.createdAt);
   document.getElementById("bankCount").textContent=state.ideas.length+" total · "+state.ideas.filter(x=>slotDate(x)===null&&x.status!=="posted").length+" unslotted";
-  if(!items.length){ list.innerHTML=`<div class="empty">No ideas here yet. Add one above, or the feeder will drop some in.</div>`; return; }
+  const sc=document.getElementById("searchCount");
+  if(sc) sc.textContent = search ? (items.length+" match"+(items.length===1?"":"es")) : "";
+  const cs=document.getElementById("clearSearch");
+  if(cs) cs.style.display = search ? "" : "none";
+  if(!items.length){ list.innerHTML=`<div class="empty">${search?`No ideas match \u201c${esc(search)}\u201d.`:"No ideas here yet. Add one above, or the feeder will drop some in."}</div>`; return; }
   list.innerHTML=items.map(x=>`
     <div class="idea" data-id="${x.id}">
       <span class="pill-tag" style="background:${pillarColor(x.pillar)}">${x.pillar}</span>
@@ -583,6 +604,10 @@ document.getElementById("addBtn").onclick=()=>{
   toast("Idea added to the bank");
 };
 document.getElementById("newHook").addEventListener("keydown",e=>{ if(e.key==="Enter") document.getElementById("addBtn").click(); });
+/* ---------- Search the bank ---------- */
+document.getElementById("bankSearch").addEventListener("input",e=>{ search=e.target.value.trim(); renderIdeas(); });
+document.getElementById("bankSearch").addEventListener("keydown",e=>{ if(e.key==="Escape"){ e.target.value=""; search=""; renderIdeas(); } });
+document.getElementById("clearSearch").onclick=()=>{ const el=document.getElementById("bankSearch"); el.value=""; search=""; renderIdeas(); el.focus(); };
 
 function draftPrompt(items){
   let p="Draft LinkedIn post(s) in my voice. Use my voice guide (voice-guide.md) and voice-examples.md — follow the hooks, structure, and rules in there; no hashtags. I will finish and post manually.\n\n";
