@@ -580,12 +580,51 @@ window.del=id=>{
   if(x) fetch("/api/delete-idea",{method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({ids:[x.srcId].filter(Boolean),hooks:[x.hook]})}).catch(()=>{});
 };
+/* ---------- Instant photo matching (client-side, no waiting) ---------- */
+let photos = [];
+function loadPhotos(){ fetch("../data/photos.json",{cache:"no-store"}).then(r=>r.json()).then(d=>{ photos=d.photos||[]; }).catch(()=>{ photos=[]; }); }
+const PIC_STOP=new Set("the a an and or but of to in on for with your you i we our it is are was were be been this that they them their who what when why how not no yes get got make made just like really very much more most some any all one two now then here there out up down over into about after before while because so if".split(/\s+/));
+const PIC_AFFINITY={
+  AI:["laptop","remote work","founder-diary","candid","city","building"],
+  Workplace:["team","event","candid","city","remote work","office"],
+  Business:["laptop","city","founder-diary","candid","travel"],
+  Marketing:["event","speaking","city","team","travel","podcast"],
+  Wildcard:["candid","personal","founder-diary","dog","food","travel"],
+  Repost:[]
+};
+function picWords(s){ return ((s||"").toLowerCase().match(/[a-z]{3,}/g)||[]).filter(w=>!PIC_STOP.has(w)); }
+function pickPhoto(x, excludeId){
+  const usable = photos.filter(p=>p&&p.id&&p.id!==excludeId
+    && !(p.tags||[]).map(t=>String(t).toLowerCase()).includes("not-a-photo")
+    && !(p.tags||[]).map(t=>String(t).toLowerCase()).includes("uncaptioned-preview-failed"));
+  if(!usable.length) return null;
+  const post=new Set([...picWords(x.hook),...picWords(x.note),...picWords(x.draftNotes),...picWords((x.draft||"").slice(0,500))]);
+  const aff=new Set((PIC_AFFINITY[x.pillar]||[]).map(s=>s.toLowerCase()));
+  const used=new Set(state.ideas.filter(i=>i!==x&&i.suggestedPic&&i.suggestedPic.id).map(i=>i.suggestedPic.id));
+  function score(p){
+    const tags=(p.tags||[]).map(t=>String(t).toLowerCase());
+    let s=0;
+    tags.forEach(t=>{ if(aff.has(t)) s+=3; t.split(/[\s-]+/).forEach(tw=>{ if(post.has(tw)) s+=2; }); });
+    picWords(p.caption).forEach(w=>{ if(post.has(w)) s+=1; });
+    if(used.has(p.id)) s-=5;
+    s+=Math.random()*0.6;
+    return s;
+  }
+  const ranked=usable.map(p=>({p,s:score(p)})).sort((a,b)=>b.s-a.s);
+  const top=ranked.slice(0, Math.min(4, ranked.length));
+  return top[Math.floor(Math.random()*top.length)].p;
+}
 window.suggestPic=(id)=>{
   const x=state.ideas.find(i=>i.id===id); if(!x) return;
-  x.picRequested=true; save(); render();
-  fetch("/api/suggest-pic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({items:[{srcId:x.srcId||null,hook:x.hook,pillar:x.pillar,draft:x.draft,draftNotes:x.draftNotes}]})})
-    .then(r=>r.json()).then(d=>{ toast(d&&d.ok&&((d.queued||0)+(d.added||0))>0?"Photo requested 📷 — run Claude Code, then reload":"Requested"); })
-    .catch(()=>toast("Couldn't reach server (is serve.py running?)"));
+  if(!photos.length){ toast("No captioned photos yet — caption your photo library (data/photos.json is empty)."); return; }
+  const current=(x.suggestedPic||{}).id||null;
+  const p=pickPhoto(x, current);
+  if(!p){ toast("No suitable photo found."); return; }
+  x.suggestedPic={ id:p.id, name:p.name||"photo", url:"https://drive.google.com/file/d/"+p.id+"/view", reason:(p.caption||"Suggested photo") };
+  delete x.picRequested; save(); render();
+  // persist the chosen photo to the shared file so it survives reloads / Claude Code sees it
+  fetch("/api/suggest-pic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({items:[{srcId:x.srcId||null,hook:x.hook,pillar:x.pillar,suggestedPic:x.suggestedPic}]})}).catch(()=>{});
+  toast(current?"Swapped 📷":"Photo matched 📷");
 };
 window.pullFromDoc=(id)=>{
   const x=state.ideas.find(i=>i.id===id); if(!x||(!x.docId&&!x.docUrl)){ toast("No Google Doc linked yet"); return; }
@@ -805,7 +844,7 @@ window.addCreator=()=>{
 })();
 
 /* ---------- Boot ---------- */
-loadCreators(); loadInspiration(); renderLegend(); render(); syncFile(); restoreTab();
+loadCreators(); loadInspiration(); loadPhotos(); renderLegend(); render(); syncFile(); restoreTab();
 // Keep tabs in sync if you use the browser back/forward buttons.
 window.addEventListener("hashchange", restoreTab);
 </script>

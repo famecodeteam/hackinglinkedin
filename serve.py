@@ -4,7 +4,7 @@
 Serves the static dashboard AND accepts small POSTs from it that flag ideas in
 data/ideas.json for Claude Code to act on, e.g.:
   /api/draft-request  -> flags ideas (draftRequested:true) for the drafter (prompts/draft.md).
-  /api/suggest-pic    -> flags an idea (picRequested:true) for photo suggestion.
+  /api/suggest-pic    -> stores a client-matched photo (suggestedPic) on an idea.
   /api/sync-doc       -> flags an idea (syncFromDocRequested:true) to re-read its Google Doc.
   /api/update-note    -> saves your "notes for drafting" (draftNotes) onto an idea.
 Each matches an incoming post to data/ideas.json by id or normalised hook; if it
@@ -109,7 +109,14 @@ class Handler(SimpleHTTPRequestHandler):
                     target["draftNotes"] = inc.get("draftNotes") or ""
             return self._apply(set_notes)
         if path == "/api/suggest-pic":
-            return self._apply(lambda target, inc: target.update({"picRequested": True}))
+            # The dashboard matches a photo client-side (instant) and sends the choice;
+            # store it. (Legacy: if no choice is sent, just flag for Claude Code.)
+            def set_pic(target, inc):
+                if inc.get("suggestedPic"):
+                    target["suggestedPic"] = inc["suggestedPic"]; target.pop("picRequested", None)
+                else:
+                    target["picRequested"] = True
+            return self._apply(set_pic)
         if path == "/api/sync-doc":
             # "Pull edits": flag the item so Claude Code re-reads its Google Doc and
             # updates the stored draft (so "Copy for LinkedIn" matches your Doc edits).
