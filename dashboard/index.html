@@ -60,6 +60,10 @@ h1 .cursor{display:inline-block;width:.5em;height:.95em;background:var(--green-b
 .day.done{opacity:.5;filter:saturate(.5);}
 .day.done:hover{opacity:.85;filter:none;}
 .day.done::after{content:"✓ POSTED";position:absolute;top:9px;right:9px;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--green-b);background:rgba(55,217,138,.16);border:1px solid rgba(55,217,138,.4);padding:2px 6px;border-radius:4px;z-index:3;}
+.day.past{opacity:.5;}
+.day.past:hover{opacity:1;}
+.day.past .day-h::after{content:"PAST";position:absolute;top:11px;right:11px;font-size:8px;font-weight:700;letter-spacing:1px;color:var(--muted);}
+.day.past.done .day-h::after{content:"";}
 .slotcard.posted{border-left-color:var(--green)!important;}
 .day-h{padding:23px 12px 9px;border-bottom:1px dashed var(--line);position:relative;}
 .day-h::before{content:"";position:absolute;top:11px;left:12px;width:7px;height:7px;border-radius:50%;background:#ff5f56;box-shadow:11px 0 #ffbd2e,22px 0 #27c93f;}
@@ -388,6 +392,7 @@ function renderWeek(){
   const lastFri=new Date(baseMon); lastFri.setDate(baseMon.getDate()+7*(WEEKS_SHOWN-1)+4);
   document.getElementById("weekLabel").textContent="Weeks of "+fmt(baseMon)+" – "+fmt(lastFri);
   const wrap=document.getElementById("week");
+  const todayIso=isoDate(new Date());
   let html="";
   for(let w=0; w<WEEKS_SHOWN; w++){
     const mon=new Date(baseMon); mon.setDate(baseMon.getDate()+7*w);
@@ -397,8 +402,9 @@ function renderWeek(){
       const p=dayPillar(d, mon);
       const items=state.ideas.filter(x=>slotDate(x)===iso);
       const dayDone = items.length>0 && items.every(x=>x.status==="posted");
+      const isPast = iso < todayIso; // a day before today reads as "gone", posted or not
       const cards = items.length ? items.map(x=>slotCard(x)).join("") : `<div class="empty-slot">No post slotted</div>`;
-      return `<div class="day${dayDone?" done":""}" data-date="${iso}" ondragover="dayDragOver(event)" ondragleave="dayDragLeave(event)" ondrop="dayDrop(event)">
+      return `<div class="day${dayDone?" done":""}${isPast?" past":""}" data-date="${iso}" ondragover="dayDragOver(event)" ondragleave="dayDragLeave(event)" ondrop="dayDrop(event)">
         <div class="day-h" style="border-top:3px solid ${pillarColor(p)}">
           <div class="d">${d} <span style="color:var(--muted);font-weight:500">${fmt(dt)}</span></div>
           <div class="p" style="color:${pillarColor(p)}">${p}${isRotating(d)?' <span style="font-weight:500;opacity:.65">· rotates</span>':''}</div>
