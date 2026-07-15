@@ -747,12 +747,12 @@ function renderInspiration(){
 function renderInspList(){
   const list=document.getElementById("inspList"); if(!list) return;
   // Once a post is in the bank (added manually or turned into the draft of the day), drop it from here.
-  const posts=inspiration.filter(p=>!p.added);
+  const posts=inspiration.filter(p=>!p.added).sort((a,b)=>(b.foundAt||"").localeCompare(a.foundAt||"") || (b.likes||0)-(a.likes||0));
   list.innerHTML = posts.length ? posts.map(p=>`
     <div class="idea">
       <span class="pill-tag" style="background:${pillarColor(p.pillar)}">${esc(p.pillar||"?")}</span>
       <div class="body">
-        <div class="hook">${esc(p.author||"Unknown")} ${p.likes!=null?`<span style="font-weight:600;color:var(--muted)">&middot; ❤ ${Number(p.likes).toLocaleString()}</span>`:""}</div>
+        <div class="hook">${esc(p.author||"Unknown")} ${p.likes!=null?`<span style="font-weight:600;color:var(--muted)">&middot; ❤ ${Number(p.likes).toLocaleString()}</span>`:""}${p.foundAt?`<span style="font-weight:500;color:var(--muted)"> &middot; 📥 added ${fmt(new Date(p.foundAt+"T00:00:00"))}</span>`:""}</div>
         <div class="meta">${esc((p.text||"").slice(0,240))}${(p.text||"").length>240?"…":""}</div>
         ${p.suggestedHook?`<div style="margin:7px 0">
           <span class="daily-badge">💡 Your angle</span>
