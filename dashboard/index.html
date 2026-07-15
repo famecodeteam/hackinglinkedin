@@ -57,6 +57,10 @@ h1 .cursor{display:inline-block;width:.5em;height:.95em;background:var(--green-b
 .weekblock.ahead .weekgrid{opacity:.8;}
 .weekgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
 .day{background:var(--card);border:1px dashed var(--line2);border-radius:9px;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:160px;overflow:hidden;position:relative;}
+.day.done{opacity:.5;filter:saturate(.5);}
+.day.done:hover{opacity:.85;filter:none;}
+.day.done::after{content:"✓ POSTED";position:absolute;top:9px;right:9px;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--green-b);background:rgba(55,217,138,.16);border:1px solid rgba(55,217,138,.4);padding:2px 6px;border-radius:4px;z-index:3;}
+.slotcard.posted{border-left-color:var(--green)!important;}
 .day-h{padding:23px 12px 9px;border-bottom:1px dashed var(--line);position:relative;}
 .day-h::before{content:"";position:absolute;top:11px;left:12px;width:7px;height:7px;border-radius:50%;background:#ff5f56;box-shadow:11px 0 #ffbd2e,22px 0 #27c93f;}
 .day-h .d{font-weight:700;font-size:12px;color:var(--ink);}
@@ -391,9 +395,10 @@ function renderWeek(){
       const dt=new Date(mon); dt.setDate(mon.getDate()+i);
       const iso=isoDate(dt);
       const p=dayPillar(d, mon);
-      const items=state.ideas.filter(x=>slotDate(x)===iso && x.status!=="posted");
+      const items=state.ideas.filter(x=>slotDate(x)===iso);
+      const dayDone = items.length>0 && items.every(x=>x.status==="posted");
       const cards = items.length ? items.map(x=>slotCard(x)).join("") : `<div class="empty-slot">No post slotted</div>`;
-      return `<div class="day" data-date="${iso}" ondragover="dayDragOver(event)" ondragleave="dayDragLeave(event)" ondrop="dayDrop(event)">
+      return `<div class="day${dayDone?" done":""}" data-date="${iso}" ondragover="dayDragOver(event)" ondragleave="dayDragLeave(event)" ondrop="dayDrop(event)">
         <div class="day-h" style="border-top:3px solid ${pillarColor(p)}">
           <div class="d">${d} <span style="color:var(--muted);font-weight:500">${fmt(dt)}</span></div>
           <div class="p" style="color:${pillarColor(p)}">${p}${isRotating(d)?' <span style="font-weight:500;opacity:.65">· rotates</span>':''}</div>
@@ -410,7 +415,7 @@ function renderWeek(){
   wrap.innerHTML=html;
 }
 function slotCard(x){
-  return `<div class="slotcard" draggable="true" ondragstart="cardDragStart(event,'${x.id}')" ondragend="cardDragEnd(event)" style="border-left-color:${pillarColor(x.pillar)}">
+  return `<div class="slotcard${x.status==="posted"?" posted":""}" draggable="true" ondragstart="cardDragStart(event,'${x.id}')" ondragend="cardDragEnd(event)" style="border-left-color:${pillarColor(x.pillar)}">
     <div class="grip" title="Drag to another day">⠿⠿</div>
     <div class="hook">${esc(x.hook)}</div>
     ${x.note?`<div class="note">${esc(x.note)}</div>`:""}
@@ -421,6 +426,7 @@ function slotCard(x){
       <span class="${pillClass(x.status)}">${x.status}</span>
       <select class="mini" onchange="setStatus('${x.id}',this.value)">${STATUSES.map(s=>`<option ${s===x.status?"selected":""}>${s}</option>`).join("")}</select>
       <button class="mini" onclick="suggestPic('${x.id}')">📷 Suggest pic</button>
+      ${postedBtn(x)}
       <button class="ghost mini" onclick="unassign('${x.id}')">↩ bank</button>
     </div>
   </div>`;
@@ -480,7 +486,7 @@ function matchesSearch(x){
 }
 function renderIdeas(){
   const list=document.getElementById("ideaList");
-  let items=state.ideas.filter(x=>slotDate(x)===null || x.status==="posted");
+  let items=state.ideas.filter(x=>slotDate(x)===null && x.status!=="posted");
   if(filter==="posted") items=state.ideas.filter(x=>x.status==="posted");
   else if(filter!=="all") items=items.filter(x=>x.pillar===filter);
   items=items.filter(matchesSearch);
@@ -509,10 +515,17 @@ function renderIdeas(){
           <select class="mini" onchange="assign('${x.id}',this.value)">${slotOptions()}</select>
           <button class="mini" onclick="draftOne('${x.id}')">${hasRealDraft(x)?"✍️ Re-draft":"✍️ Draft"}</button>
           <button class="mini" onclick="suggestPic('${x.id}')">📷 Suggest pic</button>
+          ${postedBtn(x)}
           <button class="ghost mini" onclick="del('${x.id}')">Delete</button>
         </div>
       </div>
     </div>`).join("");
+}
+/* One-click "I posted this". Marks it posted, which greys out its day on the board. */
+function postedBtn(x){
+  return x.status==="posted"
+    ? `<button class="ghost mini" onclick="unpost('${x.id}')" title="Undo - put it back to drafted">↺ Un-post</button>`
+    : `<button class="mini" onclick="markPosted('${x.id}')" title="Mark as posted - greys out that day">✓ Posted</button>`;
 }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function render(){ renderWeek(); renderIdeas(); renderFilters(); }
@@ -529,6 +542,11 @@ window.setPillar=(id,v)=>{ const x=state.ideas.find(i=>i.id===id); if(x){x.pilla
 window.assign=(id,iso)=>{ if(!iso)return; const x=state.ideas.find(i=>i.id===id); if(!x)return;
   const dt=new Date(iso+"T00:00:00"); const wd=DAYS[(dt.getDay()+6)%7];
   x.date=iso; x.day=wd; save(); persistItem(x); render(); toast("Slotted to "+wd+" "+fmt(dt)); };
+window.markPosted=id=>{ const x=state.ideas.find(i=>i.id===id); if(!x) return;
+  x.status="posted"; save(); persistItem(x); render();
+  toast(slotDate(x)?"Posted ✓ — that day is done":"Marked as posted ✓"); };
+window.unpost=id=>{ const x=state.ideas.find(i=>i.id===id); if(!x) return;
+  x.status = hasRealDraft(x) ? "drafted" : "idea"; save(); persistItem(x); render(); toast("Un-posted"); };
 window.unassign=id=>{ const x=state.ideas.find(i=>i.id===id); if(x){x.day=null; x.date=null; save(); persistItem(x); render();} };
 /* ---------- Drag a slotted post to another day ---------- */
 let _dragId=null;
